@@ -1,1 +1,1 @@
-# sniffyio.github.io
+# sniffy.github.io
