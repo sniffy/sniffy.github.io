@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.3">
-<title>Migration from 3.0.x to 3.1.x</title>
+<title>Standalone setup</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -513,12 +513,13 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</a>
+<li><a href="#_standalone_setup">Standalone setup</a></li>
+<li><a href="#_spring_boot_integration">Spring Boot Integration</a></li>
+<li><a href="#_sniffy_test">Sniffy Test</a>
 <ul class="sectlevel2">
-<li><a href="#_maven_artifacts">Maven artifacts</a></li>
-<li><a href="#_jdbc_connection_string">JDBC Connection String</a></li>
-<li><a href="#_deprecated_classes">Deprecated Classes</a></li>
-<li><a href="#_deprecated_methods">Deprecated Methods</a></li>
+<li><a href="#_junit">JUnit</a></li>
+<li><a href="#_spring_test">Spring Test</a></li>
+<li><a href="#_testng">TestNG</a></li>
 </ul>
 </li>
 </ul>
@@ -526,192 +527,122 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</h2>
+<h2 id="_standalone_setup">Standalone setup</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_maven_artifacts">Maven artifacts</h3>
 <div class="paragraph">
-<p>Sniffy test support has been extracted to a separate artifacts.
-You should now use following artifacts if you want to use Sniffy in your unit tests:</p>
+<p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
+Just grab the <code>sniffy-3.1.0-RC12-SNAPSHOT.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 1. Table Maven artifacts migration</caption>
-<colgroup>
-<col style="width: 33%;">
-<col style="width: 33%;">
-<col style="width: 33%;">
-</colgroup>
-<thead>
+<div class="admonitionblock warning">
+<table>
 <tr>
-<th class="tableblock halign-left valign-top">Old artifact</th>
-<th class="tableblock halign-left valign-top">New artifact</th>
-<th class="tableblock halign-left valign-top">Test framework</th>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.0-RC12-SNAPSHOT.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+</td>
 </tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy-junit:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">JUnit</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy-spring-test:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Spring Framework</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy-testng:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">TestNG</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy:sniffy-core:test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Spock Framework</p></td>
-</tr>
-</tbody>
 </table>
 </div>
-<div class="sect2">
-<h3 id="_jdbc_connection_string">JDBC Connection String</h3>
-<div class="paragraph">
-<p><code>sniffer:</code> connection is deprecated as of Sniffy 3.1.0.
-You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
-<div class="listingblock">
+</div>
+<div class="sect1">
+<h2 id="_spring_boot_integration">Spring Boot Integration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you&#8217;re using Spring Boot, add the dependency below to your project in order to use Sniffy.</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Maven</div>
 <div class="content">
-<pre class="CodeRay highlight"><code>sniffy:jdbc:h2:mem:</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sniffy_test">Sniffy Test</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sniffy artifacts for unit test frameworks are distributed via Maven Central repository and can be downloaded using your favorite package manager.</p>
+</div>
+<div class="sect2">
+<h3 id="_junit">JUnit</h3>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_deprecated_classes">Deprecated Classes</h3>
-<div class="paragraph">
-<p>Some of Sniffy classes are deprecated as of version 3.1.0 with an equivalent replacement as shown in the table below:</p>
+<h3 id="_spring_test">Spring Test</h3>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 2. Table Sniffy 3.1.0 deprecated classes</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Deprecated class</th>
-<th class="tableblock halign-left valign-top">New class</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.MockDriver</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.sql.SniffyDriver</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.Query</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.sql.SqlStatement</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.Sniffer</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.Sniffy</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.WrongNumberOfQueriesError</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.sql.WrongNumberOfQueriesError</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.servlet.SnifferFilter</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.servlet.SniffyFilter</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.junit.QueryCounter</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.test.junit.SniffyRule</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.spring.QueryCounterListener</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.test.spring.SniffySpringTestListener</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.Expectation</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.sql.SqlExpectation</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.Expectations</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.sql.SqlExpectations</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.NoQueriesAllowed</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.sql.NoSql</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">io.sniffy.testng.QueryCounter</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.sniffy.test.testng.SniffyTestNgListener</p></td>
-</tr>
-</tbody>
-</table>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_deprecated_methods">Deprecated Methods</h3>
-<div class="sect3">
-<h4 id="_io_sniffy_sniffer">io.sniffy.Sniffer.*</h4>
-<div class="paragraph">
-<p>Some methods in <code>io.sniffy.Sniffer</code> class are now deprecated and although they&#8217;re still available in <code>io.sniffy.Sniffy</code> class they will be removed completely in future versions of Sniffy.</p>
+<h3 id="_testng">TestNG</h3>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 3. Table io.sniffy.Sniffer deprecated methods</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Deprecated method</th>
-<th class="tableblock halign-left valign-top">Replacement</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">executedStatements()</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">spy().getExecutedStatements(Threads threadMatcher, boolean removeStackTraces)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">expect*(&#8230;&#8203;)</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">expect(Spy.Expectation expectation)</p></td>
-</tr>
-</tbody>
-</table>
 </div>
-<div class="sect3">
-<h4 id="_io_sniffy_spy">io.sniffy.Spy.*</h4>
-<div class="paragraph">
-<p>Some methods in <code>io.sniffy.Spy</code> class are now deprecated and will be removed completely in future versions of Sniffy.</p>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
 </div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 4. Table io.sniffy.Spy deprecated methods</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Deprecated method</th>
-<th class="tableblock halign-left valign-top">Replacement</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">executedStatements()</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">spy().getExecutedStatements(Threads threadMatcher, boolean removeStackTraces)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">expect*(&#8230;&#8203;)</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">expect(Spy.Expectation expectation)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">verify*(&#8230;&#8203;)</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">verify(Spy.Expectation expectation)</p></td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 </div>
@@ -719,7 +650,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-15 11:00:25 MSK
+Last updated 2017-02-15 13:25:19 MSK
 </div>
 </div>
 </body>

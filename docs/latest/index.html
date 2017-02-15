@@ -514,10 +514,26 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_overview">Overview</a></li>
+<li><a href="#_overview">Overview</a>
+<ul class="sectlevel2">
 <li><a href="#_in_browser_profiler">In-browser profiler</a></li>
 <li><a href="#_asserting_number_of_queries_in_unit_tests">Asserting number of queries in unit tests</a></li>
 <li><a href="#_testing_bad_connectivity">Testing bad connectivity</a></li>
+</ul>
+</li>
+<li><a href="#_install">Install</a>
+<ul class="sectlevel1">
+<li><a href="#_standalone_setup">Standalone setup</a></li>
+<li><a href="#_spring_boot_integration">Spring Boot Integration</a></li>
+<li><a href="#_sniffy_test">Sniffy Test</a>
+<ul class="sectlevel2">
+<li><a href="#_junit">JUnit</a></li>
+<li><a href="#_spring_test">Spring Test</a></li>
+<li><a href="#_testng">TestNG</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#_setup">Setup</a>
 <ul class="sectlevel1">
 <li><a href="#_using_sniffy_with_spring">Using Sniffy with Spring</a></li>
@@ -573,21 +589,16 @@ table.CodeRay td.code>pre{padding:0}
 <p>Sniffy is a Java profiler which shows the results directly in your browser.
 It also brings profiling to your unit (or rather component) tests and allows you to disable certain outgoing connections for fault-tolerance testing.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_in_browser_profiler">In-browser profiler</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_in_browser_profiler">In-browser profiler</h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/demo.gif" alt="demo">
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_asserting_number_of_queries_in_unit_tests">Asserting number of queries in unit tests</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_asserting_number_of_queries_in_unit_tests">Asserting number of queries in unit tests</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@Rule</span> <span class="directive">public</span> SniffyRule sniffyRule = <span class="keyword">new</span> SniffyRule();
@@ -612,10 +623,8 @@ It also brings profiling to your unit (or rather component) tests and allows you
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_testing_bad_connectivity">Testing bad connectivity</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_testing_bad_connectivity">Testing bad connectivity</h3>
 <div class="paragraph">
 <p>Discover all outgoing network connections from your server and disable them right from your browser:</p>
 </div>
@@ -626,6 +635,129 @@ It also brings profiling to your unit (or rather component) tests and allows you
 </div>
 <div class="paragraph">
 <p>Sniffy will throw a <code>java.net.ConnectException</code> when your application tries to connect to address disallowed by Sniffy.</p>
+</div>
+</div>
+</div>
+</div>
+<h1 id="_install" class="sect0">Install</h1>
+<div class="sect1">
+<h2 id="_standalone_setup">Standalone setup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
+Just grab the <code>sniffy-3.1.0-RC12-SNAPSHOT.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.0-RC12-SNAPSHOT.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_spring_boot_integration">Spring Boot Integration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you&#8217;re using Spring Boot, add the dependency below to your project in order to use Sniffy.</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sniffy_test">Sniffy Test</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sniffy artifacts for unit test frameworks are distributed via Maven Central repository and can be downloaded using your favorite package manager.</p>
+</div>
+<div class="sect2">
+<h3 id="_junit">JUnit</h3>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spring_test">Spring Test</h3>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_testng">TestNG</h3>
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.0-RC12-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.0-RC12-SNAPSHOT</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -910,7 +1042,7 @@ The main classes you should use are <code>io.sniffy.Sniffy</code> and <code>io.s
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with a <a href="http://junit.org/">JUnit</a> <code>@Rule</code> for quick integration with test framework.
-Just add <code>@Rule public final QueryCounter queryCounter = new QueryCounter();</code> to your JUnit test class and place appropriate expectations on your test methods like shown below.</p>
+Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</code> to your JUnit test class and place appropriate expectations on your test methods like shown below.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1330,7 +1462,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-12 01:17:19 MSK
+Last updated 2017-02-15 11:00:25 MSK
 </div>
 </div>
 </body>
