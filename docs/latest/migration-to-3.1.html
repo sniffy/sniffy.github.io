@@ -515,10 +515,12 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel1">
 <li><a href="#_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</a>
 <ul class="sectlevel2">
+<li><a href="#_sniffy_filter">Sniffy Filter</a></li>
 <li><a href="#_maven_artifacts">Maven artifacts</a></li>
 <li><a href="#_jdbc_connection_string">JDBC Connection String</a></li>
 <li><a href="#_deprecated_classes">Deprecated Classes</a></li>
 <li><a href="#_deprecated_methods">Deprecated Methods</a></li>
+<li><a href="#_deprecated_annotations">Deprecated annotations</a></li>
 </ul>
 </li>
 </ul>
@@ -528,6 +530,12 @@ table.CodeRay td.code>pre{padding:0}
 <div class="sect1">
 <h2 id="_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_sniffy_filter">Sniffy Filter</h3>
+<div class="paragraph">
+<p>Starting from version <code>3.1.0</code> injection of HTML is no longer considered experimental and enabled by default.</p>
+</div>
+</div>
 <div class="sect2">
 <h3 id="_maven_artifacts">Maven artifacts</h3>
 <div class="paragraph">
@@ -714,12 +722,18 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </table>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_deprecated_annotations">Deprecated annotations</h3>
+<div class="paragraph">
+<p><code class="line-through">@EnableSniffy(excludePattern="&#8230;&#8203;")</code> has been deprecated in favor of <code>@EnableSniffy(advanced = @SniffyAdvancedConfiguration(excludePattern = "&#8230;&#8203;",))</code></p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-15 11:00:25 MSK
+Last updated 2017-03-19 13:40:09 MSK
 </div>
 </div>
 </body>

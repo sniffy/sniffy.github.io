@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.3">
-<title>Using Sniffy API</title>
+<title>J2EE Containers</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -513,11 +513,10 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_using_sniffy_api">Using Sniffy API</a>
+<li><a href="#_j2ee_containers">J2EE Containers</a>
 <ul class="sectlevel2">
-<li><a href="#_imperative_approach">Imperative approach</a></li>
-<li><a href="#_functional_approach">Functional approach</a></li>
-<li><a href="#_resource_approach">Resource approach</a></li>
+<li><a href="#_use_sniffy_with_wildfly">Use Sniffy with WildFly</a></li>
+<li><a href="#_use_sniffy_with_tomcat">Use Sniffy with Tomcat</a></li>
 </ul>
 </li>
 </ul>
@@ -525,90 +524,109 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_using_sniffy_api">Using Sniffy API</h2>
+<h2 id="_j2ee_containers">J2EE Containers</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Sniffy provides a convenient API for validating the number of executed database queries, affected database rows or even number of active TCP connections.
-The main classes you should use are <code>io.sniffy.Sniffy</code> and <code>io.sniffy.Spy</code>.</p>
+<p>Integration of Sniffy with Servlet / J2EE containers is pretty straightforward - you should follow the instructions for setting up Sniffy DataSource and Filter above.
+However some containers are using complicated ClassLoader&#8217;s and require some additional steps.</p>
+</div>
+<div class="sect2">
+<h3 id="_use_sniffy_with_wildfly">Use Sniffy with WildFly</h3>
+<div class="paragraph">
+<p>If you want to use Sniffy with WildFly you need to add it as a <code>module</code>.</p>
 </div>
 <div class="paragraph">
-<p><code>Spy</code> objects are responsible for recording the executed queries and bytes sent over the wire. <code>Spy</code> stores all the information since the moment it was created.
-<code>Sniffy</code> class provides convenient factory methods for creating <code>Spy</code> instances</p>
+<p>In order to do that unzip the <code>sniffy-{VERSION}-jboss-module.zip</code> (available in maven Nexus central repository as <code>io.sniffy:sniffy:jar:jboss-module</code> artifact) archive to <code>modules/system/layers/base</code> folder.
+Edit the <code>modules/system/layers/base/io/sniffy/main/module.xml</code> file and specify a module containing your actual JDBC driver:</p>
 </div>
-<div class="sect2">
-<h3 id="_imperative_approach">Imperative approach</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">        <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(1)</b>
-        Spy&lt;?&gt; spy = Sniffy.spy(); <b class="conum">(2)</b>
-        connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
-        spy.verify(SqlQueries.atMostOneQuery()); <b class="conum">(4)</b>
-        spy.verify(SqlQueries.noneQueries().otherThreads()); <b class="conum">(5)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="tag">&lt;module</span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">urn:jboss:module:1.3</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+
+    <span class="tag">&lt;resources&gt;</span>
+        <span class="tag">&lt;resource-root</span> <span class="attribute-name">path</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy.jar</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/resources&gt;</span>
+
+    <span class="tag">&lt;dependencies&gt;</span>
+        <span class="comment">&lt;!-- Try import some well known modules with JDBC drivers --&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">com.h2database.h2</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">com.oracle</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">oracle.jdbc</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">com.oracle.jdbc</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="comment">&lt;!-- insert a reference to module with your JDBC driver here --&gt;</span>
+
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">javax.servlet.api</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">export</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sun.jdk</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/dependencies&gt;</span>
+<span class="tag">&lt;/module&gt;</span></code></pre>
 </div>
 </div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Just add <code>sniffy:</code> in front of your JDBC connection URL in order to enable sniffer.</p>
-</li>
-<li>
-<p><code>Spy</code> holds the amount of queries executed till the given amount of time. It acts as a base for further assertions.</p>
-</li>
-<li>
-<p>You do not need to modify your JDBC code.</p>
-</li>
-<li>
-<p><code>spy.verify(SqlQueries.atMostOneQuery())</code> throws an AssertionError if more than one query was executed.</p>
-</li>
-<li>
-<p><code>spy.verify(SqlQueries.noneQueries().otherThreads())</code> throws an AssertionError if at least one query was executed by the thread other than then current one.</p>
-</li>
-</ol>
+<div class="paragraph">
+<p>Now we can use <code>io.sniffy</code> module. At first we should change the DataSource configuration in <code>standalone/configuration/standalone.xml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;datasources&gt;</span>
+        <span class="tag">&lt;datasource</span> <span class="attribute-name">jndi-name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">java:jboss/datasources/ExampleDS</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">pool-name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">ExampleDS</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">enabled</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">use-java-context</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+            <span class="tag">&lt;connection-url&gt;</span>sniffy:jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE<span class="tag">&lt;/connection-url&gt;</span>
+            <span class="tag">&lt;driver&gt;</span>sniffy<span class="tag">&lt;/driver&gt;</span>
+            <span class="tag">&lt;security&gt;</span>
+                <span class="tag">&lt;user-name&gt;</span>sa<span class="tag">&lt;/user-name&gt;</span>
+                <span class="tag">&lt;password&gt;</span>sa<span class="tag">&lt;/password&gt;</span>
+            <span class="tag">&lt;/security&gt;</span>
+        <span class="tag">&lt;/datasource&gt;</span>
+        <span class="tag">&lt;drivers&gt;</span>
+            <span class="tag">&lt;driver</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">module</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+                <span class="tag">&lt;xa-datasource-class&gt;</span>io.sniffy.sql.SniffyDataSource<span class="tag">&lt;/xa-datasource-class&gt;</span>
+            <span class="tag">&lt;/driver&gt;</span>
+        <span class="tag">&lt;/drivers&gt;</span>
+<span class="tag">&lt;/datasources&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we should import <code>io.sniffy</code> module to your web application in order to be able to use <code>SniffyFilter</code>.
+Edit the <code>jboss-deployment-structure.xml</code> file inside your web application and add a reference to <code>io.sniffy</code> module:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;jboss-deployment-structure&gt;</span>
+    <span class="tag">&lt;deployment&gt;</span>
+        <span class="tag">&lt;dependencies&gt;</span>
+            <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/dependencies&gt;</span>
+    <span class="tag">&lt;/deployment&gt;</span>
+<span class="tag">&lt;/jboss-deployment-structure&gt;</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_functional_approach">Functional approach</h3>
+<h3 id="_use_sniffy_with_tomcat">Use Sniffy with Tomcat</h3>
+<div class="paragraph">
+<p>If you&#8217;re using datasources managed within Tomcat rather that within your web application, place <code>sniffy-&lt;VERSION&gt;.jar</code> to the <code>lib</code> folder
+And add <code>sniffy:</code> prefix to the Datasource configuration in <code>conf/server.xml</code> file. For example</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(1)</b>
-        Sniffy.execute(
-                () -&gt; connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>)
-        ).verify(SqlQueries.atMostOneQuery()); <b class="conum">(2)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;Resource</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">jdbc/myoracle</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">auth</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">Container</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">javax.sql.DataSource</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">driverClassName</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy.sql.SniffyDriver</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">url</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:oracle:thin:@127.0.0.1:1521:mysid</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">username</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">scott</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">password</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">tiger</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">maxTotal</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">20</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">maxIdle</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">10</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">maxWaitMillis</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">-1</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span></code></pre>
 </div>
 </div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Just add <code>sniffy:</code> in front of your JDBC connection URL in order to enable sniffer.</p>
-</li>
-<li>
-<p><code>Sniffy.execute()</code> method executes the lambda expression and returns an instance of <code>Spy</code> which provides methods for validating the number of executed queries in given lambda/</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_resource_approach">Resource approach</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(1)</b>
-        <span class="keyword">try</span> (<span class="annotation">@SuppressWarnings</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">unused</span><span class="delimiter">&quot;</span></span>) Spy s = Sniffy. <b class="conum">(2)</b>
-                expect(SqlQueries.atMostOneQuery()).
-                expect(SqlQueries.noneQueries().otherThreads());
-             <span class="predefined-type">Statement</span> statement = connection.createStatement()) {
-            statement.execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>);
-        }</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Just add <code>sniffy:</code> in front of your JDBC connection URL in order to enable sniffer.</p>
-</li>
-<li>
-<p>You can use <code>Sniffy</code> in a try-with-resource block using <code>expect</code> methods instead of <code>verify</code>. When the try-with-resource block is completed, Sniffy will verify all the expectations defined</p>
-</li>
-</ol>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Make sure that in this setup you do not have sniffy jars in your web application class path (i.e. WEB-INF/lib folder)
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -616,7 +634,7 @@ The main classes you should use are <code>io.sniffy.Sniffy</code> and <code>io.s
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-19 06:45:59 MSK
+Last updated 2017-03-19 06:45:57 MSK
 </div>
 </div>
 </body>

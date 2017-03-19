@@ -548,6 +548,12 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_enable_sniffy_filter_in_web_xml">Enable Sniffy filter in web.xml</a></li>
 </ul>
 </li>
+<li><a href="#_j2ee_containers">J2EE Containers</a>
+<ul class="sectlevel2">
+<li><a href="#_use_sniffy_with_wildfly">Use Sniffy with WildFly</a></li>
+<li><a href="#_use_sniffy_with_tomcat">Use Sniffy with Tomcat</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_configuration">Configuration</a></li>
@@ -570,10 +576,12 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel1">
 <li><a href="#_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</a>
 <ul class="sectlevel2">
+<li><a href="#_sniffy_filter">Sniffy Filter</a></li>
 <li><a href="#_maven_artifacts">Maven artifacts</a></li>
 <li><a href="#_jdbc_connection_string">JDBC Connection String</a></li>
 <li><a href="#_deprecated_classes">Deprecated Classes</a></li>
 <li><a href="#_deprecated_methods">Deprecated Methods</a></li>
+<li><a href="#_deprecated_annotations">Deprecated annotations</a></li>
 </ul>
 </li>
 </ul>
@@ -645,7 +653,7 @@ It also brings profiling to your unit (or rather component) tests and allows you
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
-Just grab the <code>sniffy-3.1.0.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+Just grab the <code>sniffy-3.1.2.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -654,7 +662,7 @@ Just grab the <code>sniffy-3.1.0.jar</code> from our <a href="https://github.com
 <div class="title">Warning</div>
 </td>
 <td class="content">
-If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.0.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.2.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
 </td>
 </tr>
 </table>
@@ -673,7 +681,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.0<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -681,7 +689,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.0</span><span class="delimiter">'</span></span>
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.2</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -701,7 +709,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.0<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -710,7 +718,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.0</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.2</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -723,7 +731,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.0<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -732,7 +740,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.0</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.2</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -745,7 +753,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.0<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -754,7 +762,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.0</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.2</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -835,17 +843,22 @@ The Sniffy JDBC driver class name to <code>io.sniffy.sql.SniffyDriver</code></p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;filter&gt;</span>
     <span class="tag">&lt;filter-name&gt;</span>sniffer<span class="tag">&lt;/filter-name&gt;</span>
     <span class="tag">&lt;filter-class&gt;</span>io.sniffy.servlet.SniffyFilter<span class="tag">&lt;/filter-class&gt;</span>
+    <span class="tag">&lt;async-supported&gt;</span>true<span class="tag">&lt;/async-supported&gt;</span>
     <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>inject-html<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(1)</b>
-        <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: false --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>enabled<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(2)</b>
+        <span class="tag">&lt;param-name&gt;</span>enabled<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(1)</b>
         <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
     <span class="tag">&lt;/init-param&gt;</span>
     <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(3)</b>
+        <span class="tag">&lt;param-name&gt;</span>exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(2)</b>
         <span class="tag">&lt;param-value&gt;</span>^/vets.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
+    <span class="tag">&lt;/init-param&gt;</span>
+    <span class="tag">&lt;init-param&gt;</span>
+        <span class="tag">&lt;param-name&gt;</span>inject-html<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(3)</b>
+        <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
+    <span class="tag">&lt;/init-param&gt;</span>
+    <span class="tag">&lt;init-param&gt;</span>
+        <span class="tag">&lt;param-name&gt;</span>inject-html-exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(4)</b>
+        <span class="tag">&lt;param-value&gt;</span>^/peds.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
     <span class="tag">&lt;/init-param&gt;</span>
 <span class="tag">&lt;/filter&gt;</span>
 <span class="tag">&lt;filter-mapping&gt;</span>
@@ -857,15 +870,210 @@ The Sniffy JDBC driver class name to <code>io.sniffy.sql.SniffyDriver</code></p>
 <div class="colist arabic">
 <ol>
 <li>
-<p>Enables injection of Sniffy toolbar to HTML. If disabled the html remains untouched. You still can get the number of executed queries from <code>Sniffy-Sql-Queries</code> HTTP header.</p>
-</li>
-<li>
 <p>Allows disabling the Sniffy filter in <code>web.xml</code></p>
 </li>
 <li>
 <p>Allows excluding some of the request URL&#8217;s from Sniffer filter</p>
 </li>
+<li>
+<p>Enables injection of Sniffy toolbar to HTML. If disabled the html remains untouched. You still can get the number of executed queries from <code>Sniffy-Sql-Queries</code> HTTP header.</p>
+</li>
+<li>
+<p>Allows excluding of Sniffy toolbar injection to some of the request URL&#8217;s</p>
+</li>
 </ol>
+</div>
+<div class="paragraph">
+<p>Apart from obvious <code>false</code> and <code>true</code> values, you can set <code>inject-html</code> and 'enabled' parameters to a <code>system</code> value.
+It will act as described in table below:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. Sniffy Filter Configuration</caption>
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">-Dio.sniffy.filterEnabled or IO_SNIFFY_FILTER_ENABLED</th>
+<th class="tableblock halign-left valign-top">enabled filter init param</th>
+<th class="tableblock halign-left valign-top">Effective value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Similar rules are applied to <code>inject-html</code> filter parameter</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_j2ee_containers">J2EE Containers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Integration of Sniffy with Servlet / J2EE containers is pretty straightforward - you should follow the instructions for setting up Sniffy DataSource and Filter above.
+However some containers are using complicated ClassLoader&#8217;s and require some additional steps.</p>
+</div>
+<div class="sect2">
+<h3 id="_use_sniffy_with_wildfly">Use Sniffy with WildFly</h3>
+<div class="paragraph">
+<p>If you want to use Sniffy with WildFly you need to add it as a <code>module</code>.</p>
+</div>
+<div class="paragraph">
+<p>In order to do that unzip the <code>sniffy-{VERSION}-jboss-module.zip</code> (available in maven Nexus central repository as <code>io.sniffy:sniffy:jar:jboss-module</code> artifact) archive to <code>modules/system/layers/base</code> folder.
+Edit the <code>modules/system/layers/base/io/sniffy/main/module.xml</code> file and specify a module containing your actual JDBC driver:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="tag">&lt;module</span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">urn:jboss:module:1.3</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+
+    <span class="tag">&lt;resources&gt;</span>
+        <span class="tag">&lt;resource-root</span> <span class="attribute-name">path</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy.jar</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/resources&gt;</span>
+
+    <span class="tag">&lt;dependencies&gt;</span>
+        <span class="comment">&lt;!-- Try import some well known modules with JDBC drivers --&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">com.h2database.h2</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">com.oracle</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">oracle.jdbc</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">com.oracle.jdbc</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">optional</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="comment">&lt;!-- insert a reference to module with your JDBC driver here --&gt;</span>
+
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">javax.servlet.api</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">export</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sun.jdk</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/dependencies&gt;</span>
+<span class="tag">&lt;/module&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can use <code>io.sniffy</code> module. At first we should change the DataSource configuration in <code>standalone/configuration/standalone.xml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;datasources&gt;</span>
+        <span class="tag">&lt;datasource</span> <span class="attribute-name">jndi-name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">java:jboss/datasources/ExampleDS</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">pool-name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">ExampleDS</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">enabled</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">use-java-context</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+            <span class="tag">&lt;connection-url&gt;</span>sniffy:jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE<span class="tag">&lt;/connection-url&gt;</span>
+            <span class="tag">&lt;driver&gt;</span>sniffy<span class="tag">&lt;/driver&gt;</span>
+            <span class="tag">&lt;security&gt;</span>
+                <span class="tag">&lt;user-name&gt;</span>sa<span class="tag">&lt;/user-name&gt;</span>
+                <span class="tag">&lt;password&gt;</span>sa<span class="tag">&lt;/password&gt;</span>
+            <span class="tag">&lt;/security&gt;</span>
+        <span class="tag">&lt;/datasource&gt;</span>
+        <span class="tag">&lt;drivers&gt;</span>
+            <span class="tag">&lt;driver</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">module</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+                <span class="tag">&lt;xa-datasource-class&gt;</span>io.sniffy.sql.SniffyDataSource<span class="tag">&lt;/xa-datasource-class&gt;</span>
+            <span class="tag">&lt;/driver&gt;</span>
+        <span class="tag">&lt;/drivers&gt;</span>
+<span class="tag">&lt;/datasources&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we should import <code>io.sniffy</code> module to your web application in order to be able to use <code>SniffyFilter</code>.
+Edit the <code>jboss-deployment-structure.xml</code> file inside your web application and add a reference to <code>io.sniffy</code> module:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;jboss-deployment-structure&gt;</span>
+    <span class="tag">&lt;deployment&gt;</span>
+        <span class="tag">&lt;dependencies&gt;</span>
+            <span class="tag">&lt;module</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/dependencies&gt;</span>
+    <span class="tag">&lt;/deployment&gt;</span>
+<span class="tag">&lt;/jboss-deployment-structure&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_use_sniffy_with_tomcat">Use Sniffy with Tomcat</h3>
+<div class="paragraph">
+<p>If you&#8217;re using datasources managed within Tomcat rather that within your web application, place <code>sniffy-&lt;VERSION&gt;.jar</code> to the <code>lib</code> folder
+And add <code>sniffy:</code> prefix to the Datasource configuration in <code>conf/server.xml</code> file. For example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;Resource</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">jdbc/myoracle</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">auth</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">Container</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">javax.sql.DataSource</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">driverClassName</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">io.sniffy.sql.SniffyDriver</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">url</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:oracle:thin:@127.0.0.1:1521:mysid</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">username</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">scott</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">password</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">tiger</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">maxTotal</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">20</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">maxIdle</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">10</span><span class="delimiter">&quot;</span></span>
+    <span class="attribute-name">maxWaitMillis</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">-1</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Make sure that in this setup you do not have sniffy jars in your web application class path (i.e. WEB-INF/lib folder)
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -888,7 +1096,7 @@ sniffy configuration is parsed only once and any changes made to system properti
 </table>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 1. Table Configuration properties</caption>
+<caption class="title">Table 2. Table Configuration properties</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -917,10 +1125,22 @@ sniffy configuration is parsed only once and any changes made to system properti
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.topSqlCapacity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_TOP_SQL_CAPACITY</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of top SQL queries to store</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1024</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.filterEnabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_FILTER_ENABLED</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enable servlet filter</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.excludePattern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_EXCLUDE_PATTERN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Regexp for excluding sniffy completely from certain servlet requests</p></td>
+<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.injectHtml</p></td>
@@ -929,9 +1149,9 @@ sniffy configuration is parsed only once and any changes made to system properti
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.excludePattern</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_EXCLUDE_PATTERN</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Regexp for excluding sniffy from certain servlet requests</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.injectHtmlExcludePattern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_INJECT_HTML_EXCLUDE_PATTERN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Regexp for excluding sniffy widget from certain servlet requests</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
@@ -946,6 +1166,10 @@ it will enable the sniffy for current request and will also set a <code>sniffy</
 <div class="paragraph">
 <p>For stateless clients who don&#8217;t maintain the cookie jar it might be more convenient to enable/disable Sniffy using <code>Sniffy-Enabled: true</code> / <code>Sniffy-Enabled: false</code> headers.
 Unlike the query parameter the HTTP header will only affect a single request.</p>
+</div>
+<div class="paragraph">
+<p>A similar header <code>Sniffy-Inject-Html-Enabled</code> can be used for hiding or showing the Sniffy Widget in the browser.
+Unlike <code>Sniffy-Enabled</code> It doesn&#8217;t come with a query parameter alternative.</p>
 </div>
 <h1 id="_unit_and_component_tests" class="sect0">Unit and component tests</h1>
 <div class="sect1">
@@ -1272,13 +1496,19 @@ Just add <code>@Listeners(SniffyTestNgListener.class)</code> to your TestNG test
 <h2 id="_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</h2>
 <div class="sectionbody">
 <div class="sect2">
+<h3 id="_sniffy_filter">Sniffy Filter</h3>
+<div class="paragraph">
+<p>Starting from version <code>3.1.0</code> injection of HTML is no longer considered experimental and enabled by default.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_maven_artifacts">Maven artifacts</h3>
 <div class="paragraph">
 <p>Sniffy test support has been extracted to a separate artifacts.
 You should now use following artifacts if you want to use Sniffy in your unit tests:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 2. Table Maven artifacts migration</caption>
+<caption class="title">Table 3. Table Maven artifacts migration</caption>
 <colgroup>
 <col style="width: 33%;">
 <col style="width: 33%;">
@@ -1333,7 +1563,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 <p>Some of Sniffy classes are deprecated as of version 3.1.0 with an equivalent replacement as shown in the table below:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 3. Table Sniffy 3.1.0 deprecated classes</caption>
+<caption class="title">Table 4. Table Sniffy 3.1.0 deprecated classes</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1400,7 +1630,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 <p>Some methods in <code>io.sniffy.Sniffer</code> class are now deprecated and although they&#8217;re still available in <code>io.sniffy.Sniffy</code> class they will be removed completely in future versions of Sniffy.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 4. Table io.sniffy.Sniffer deprecated methods</caption>
+<caption class="title">Table 5. Table io.sniffy.Sniffer deprecated methods</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1429,7 +1659,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 <p>Some methods in <code>io.sniffy.Spy</code> class are now deprecated and will be removed completely in future versions of Sniffy.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 5. Table io.sniffy.Spy deprecated methods</caption>
+<caption class="title">Table 6. Table io.sniffy.Spy deprecated methods</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1457,12 +1687,18 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </table>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_deprecated_annotations">Deprecated annotations</h3>
+<div class="paragraph">
+<p><code class="line-through">@EnableSniffy(excludePattern="&#8230;&#8203;")</code> has been deprecated in favor of <code>@EnableSniffy(advanced = @SniffyAdvancedConfiguration(excludePattern = "&#8230;&#8203;",))</code></p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-15 11:00:25 MSK
+Last updated 2017-03-19 06:45:57 MSK
 </div>
 </div>
 </body>

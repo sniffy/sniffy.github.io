@@ -532,17 +532,22 @@ table.CodeRay td.code>pre{padding:0}
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;filter&gt;</span>
     <span class="tag">&lt;filter-name&gt;</span>sniffer<span class="tag">&lt;/filter-name&gt;</span>
     <span class="tag">&lt;filter-class&gt;</span>io.sniffy.servlet.SniffyFilter<span class="tag">&lt;/filter-class&gt;</span>
+    <span class="tag">&lt;async-supported&gt;</span>true<span class="tag">&lt;/async-supported&gt;</span>
     <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>inject-html<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(1)</b>
-        <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: false --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>enabled<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(2)</b>
+        <span class="tag">&lt;param-name&gt;</span>enabled<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(1)</b>
         <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
     <span class="tag">&lt;/init-param&gt;</span>
     <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(3)</b>
+        <span class="tag">&lt;param-name&gt;</span>exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(2)</b>
         <span class="tag">&lt;param-value&gt;</span>^/vets.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
+    <span class="tag">&lt;/init-param&gt;</span>
+    <span class="tag">&lt;init-param&gt;</span>
+        <span class="tag">&lt;param-name&gt;</span>inject-html<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(3)</b>
+        <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
+    <span class="tag">&lt;/init-param&gt;</span>
+    <span class="tag">&lt;init-param&gt;</span>
+        <span class="tag">&lt;param-name&gt;</span>inject-html-exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(4)</b>
+        <span class="tag">&lt;param-value&gt;</span>^/peds.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
     <span class="tag">&lt;/init-param&gt;</span>
 <span class="tag">&lt;/filter&gt;</span>
 <span class="tag">&lt;filter-mapping&gt;</span>
@@ -554,15 +559,102 @@ table.CodeRay td.code>pre{padding:0}
 <div class="colist arabic">
 <ol>
 <li>
-<p>Enables injection of Sniffy toolbar to HTML. If disabled the html remains untouched. You still can get the number of executed queries from <code>Sniffy-Sql-Queries</code> HTTP header.</p>
-</li>
-<li>
 <p>Allows disabling the Sniffy filter in <code>web.xml</code></p>
 </li>
 <li>
 <p>Allows excluding some of the request URL&#8217;s from Sniffer filter</p>
 </li>
+<li>
+<p>Enables injection of Sniffy toolbar to HTML. If disabled the html remains untouched. You still can get the number of executed queries from <code>Sniffy-Sql-Queries</code> HTTP header.</p>
+</li>
+<li>
+<p>Allows excluding of Sniffy toolbar injection to some of the request URL&#8217;s</p>
+</li>
 </ol>
+</div>
+<div class="paragraph">
+<p>Apart from obvious <code>false</code> and <code>true</code> values, you can set <code>inject-html</code> and 'enabled' parameters to a <code>system</code> value.
+It will act as described in table below:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. Sniffy Filter Configuration</caption>
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">-Dio.sniffy.filterEnabled or IO_SNIFFY_FILTER_ENABLED</th>
+<th class="tableblock halign-left valign-top">enabled filter init param</th>
+<th class="tableblock halign-left valign-top">Effective value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Similar rules are applied to <code>inject-html</code> filter parameter</p>
 </div>
 </div>
 </div>
@@ -570,7 +662,7 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-15 11:00:25 MSK
+Last updated 2017-03-19 06:45:59 MSK
 </div>
 </div>
 </body>
