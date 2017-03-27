@@ -519,11 +519,13 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_in_browser_profiler">In-browser profiler</a></li>
 <li><a href="#_asserting_number_of_queries_in_unit_tests">Asserting number of queries in unit tests</a></li>
 <li><a href="#_testing_bad_connectivity">Testing bad connectivity</a></li>
+<li><a href="#_simulating_no_connectivity_in_unit_tests">Simulating no connectivity in unit tests</a></li>
 </ul>
 </li>
 <li><a href="#_install">Install</a>
 <ul class="sectlevel1">
 <li><a href="#_standalone_setup">Standalone setup</a></li>
+<li><a href="#_non_servlet_applications">Non-Servlet applications</a></li>
 <li><a href="#_spring_boot_integration">Spring Boot Integration</a></li>
 <li><a href="#_sniffy_test">Sniffy Test</a>
 <ul class="sectlevel2">
@@ -645,6 +647,25 @@ It also brings profiling to your unit (or rather component) tests and allows you
 <p>Sniffy will throw a <code>java.net.ConnectException</code> when your application tries to connect to address disallowed by Sniffy.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_simulating_no_connectivity_in_unit_tests">Simulating no connectivity in unit tests</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@Rule</span> <span class="directive">public</span> SniffyRule sniffyRule = <span class="keyword">new</span> SniffyRule();
+
+    <span class="annotation">@Test</span>
+    <span class="annotation">@DisableSockets</span>
+    <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        <span class="keyword">try</span> {
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>);
+            fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
+        } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
+            assertNotNull(e);
+        }
+    }</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <h1 id="_install" class="sect0">Install</h1>
@@ -653,7 +674,7 @@ It also brings profiling to your unit (or rather component) tests and allows you
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
-Just grab the <code>sniffy-3.1.2.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+Just grab the <code>sniffy-3.1.3.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -662,10 +683,29 @@ Just grab the <code>sniffy-3.1.2.jar</code> from our <a href="https://github.com
 <div class="title">Warning</div>
 </td>
 <td class="content">
-If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.2.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.3.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
 </td>
 </tr>
 </table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_non_servlet_applications">Non-Servlet applications</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Standalone sniffy uber-jar also works with non-Servlet applications (Currently only fault tolerance testing is supported in this mode).
+Just add following parameter to your java application command line:
+<code>-javaagent:sniffy-&lt;VERSION&gt;.jar=5559</code></p>
+</div>
+<div class="paragraph">
+<p>Here <code>5559</code> is the port where connectivity controls are available - just point your browser to 5559 port on your host (Say <a href="http://localhost:5559" class="bare">http://localhost:5559</a> ).
+Below is an example of connections discovered in IntelliJ Idea:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/agent-ui.png" alt="agent ui">
+</div>
 </div>
 </div>
 </div>
@@ -681,7 +721,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -689,7 +729,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.2</span><span class="delimiter">'</span></span>
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.3</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -709,7 +749,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -718,7 +758,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.2</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.3</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -731,7 +771,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -740,7 +780,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.2</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.3</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -753,7 +793,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.2<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -762,7 +802,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.2</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.3</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -860,6 +900,10 @@ The Sniffy JDBC driver class name to <code>io.sniffy.sql.SniffyDriver</code></p>
         <span class="tag">&lt;param-name&gt;</span>inject-html-exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(4)</b>
         <span class="tag">&lt;param-value&gt;</span>^/peds.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
     <span class="tag">&lt;/init-param&gt;</span>
+    <span class="tag">&lt;init-param&gt;</span>
+        <span class="tag">&lt;param-name&gt;</span>monitor-socket<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(5)</b>
+        <span class="tag">&lt;param-value&gt;</span>false<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
+    <span class="tag">&lt;/init-param&gt;</span>
 <span class="tag">&lt;/filter&gt;</span>
 <span class="tag">&lt;filter-mapping&gt;</span>
     <span class="tag">&lt;filter-name&gt;</span>sniffer<span class="tag">&lt;/filter-name&gt;</span>
@@ -880,6 +924,9 @@ The Sniffy JDBC driver class name to <code>io.sniffy.sql.SniffyDriver</code></p>
 </li>
 <li>
 <p>Allows excluding of Sniffy toolbar injection to some of the request URL&#8217;s</p>
+</li>
+<li>
+<p>Allows disabling socket monitoring functionality; will also disable fault tolerance testing features</p>
 </li>
 </ol>
 </div>
@@ -1122,7 +1169,7 @@ sniffy configuration is parsed only once and any changes made to system properti
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.monitorSocket</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_MONITOR_SOCKET</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Monitor socket connections</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false (enabled implicitly by Sniffy javaagent or SniffyFiler)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.topSqlCapacity</p></td>
@@ -1170,6 +1217,9 @@ Unlike the query parameter the HTTP header will only affect a single request.</p
 <div class="paragraph">
 <p>A similar header <code>Sniffy-Inject-Html-Enabled</code> can be used for hiding or showing the Sniffy Widget in the browser.
 Unlike <code>Sniffy-Enabled</code> It doesn&#8217;t come with a query parameter alternative.</p>
+</div>
+<div class="paragraph">
+<p>Convenient <a href="https://chrome.google.com/webstore/detail/sniffy-chrome-extension/hmiejljajpgikfbajggcolnblbhfedjp?hl=en">Sniffy Chrome Extension</a> can add these headers by simply clicking on an icon in your Google Chrome browser.</p>
 </div>
 <h1 id="_unit_and_component_tests" class="sect0">Unit and component tests</h1>
 <div class="sect1">
@@ -1272,15 +1322,22 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">io.sniffy.test.junit.usage</span>;
 
+<span class="keyword">import</span> <span class="include">io.sniffy.socket.DisableSockets</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.sql.SqlExpectation</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.Count</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.junit.SniffyRule</span>;
 <span class="keyword">import</span> <span class="include">org.junit.Rule</span>;
 <span class="keyword">import</span> <span class="include">org.junit.Test</span>;
 
+<span class="keyword">import</span> <span class="include">java.io.IOException</span>;
+<span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
+<span class="keyword">import</span> <span class="include">java.net.Socket</span>;
 <span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
 <span class="keyword">import</span> <span class="include">java.sql.DriverManager</span>;
 <span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
+
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
 
 <span class="directive">public</span> <span class="type">class</span> <span class="class">JUnitUsageTest</span> {
 
@@ -1292,6 +1349,17 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
     <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
         <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
         connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(4)</b>
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="annotation">@DisableSockets</span> <b class="conum">(5)</b>
+    <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        <span class="keyword">try</span> {
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>); <b class="conum">(6)</b>
+            fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
+        } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
+            assertNotNull(e);
+        }
     }
 
 }</code></pre>
@@ -1311,6 +1379,12 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
 <li>
 <p>- Do not make any changes in your code - just add the <code>@Rule SniffyRule</code> and put annotations on your test method.</p>
 </li>
+<li>
+<p>- Add <code>@DisableSockets</code> annotation on your test method or test class and any attempt to open a network connection will fail</p>
+</li>
+<li>
+<p>- All socket operations executed within test method annotated with <code>@DisableSockets</code> will throw a <code>java.net.ConnectException</code></p>
+</li>
 </ol>
 </div>
 </div>
@@ -1326,6 +1400,7 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">io.sniffy.test.spring.usage</span>;
 
+<span class="keyword">import</span> <span class="include">io.sniffy.socket.DisableSockets</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.sql.SqlExpectation</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.Count</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.spring.SniffySpringTestListener</span>;
@@ -1335,9 +1410,15 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <span class="keyword">import</span> <span class="include">org.springframework.test.context.TestExecutionListeners</span>;
 <span class="keyword">import</span> <span class="include">org.springframework.test.context.junit4.SpringJUnit4ClassRunner</span>;
 
+<span class="keyword">import</span> <span class="include">java.io.IOException</span>;
+<span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
+<span class="keyword">import</span> <span class="include">java.net.Socket</span>;
 <span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
 <span class="keyword">import</span> <span class="include">java.sql.DriverManager</span>;
 <span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
+
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
 
 <span class="annotation">@RunWith</span>(SpringJUnit4ClassRunner.class)
 <span class="annotation">@ContextConfiguration</span>(classes = SpringUsageTest.class)
@@ -1349,6 +1430,17 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
     <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
         <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
         connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(4)</b>
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="annotation">@DisableSockets</span> <b class="conum">(5)</b>
+    <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        <span class="keyword">try</span> {
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>); <b class="conum">(6)</b>
+            fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
+        } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
+            assertNotNull(e);
+        }
     }
 
 }</code></pre>
@@ -1368,6 +1460,12 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <li>
 <p>- Do not make any changes in your code - just add the <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> and put annotations on your test method.</p>
 </li>
+<li>
+<p>- Add <code>@DisableSockets</code> annotation on your test method or test class and any attempt to open a network connection will fail</p>
+</li>
+<li>
+<p>- All socket operations executed within test method annotated with <code>@DisableSockets</code> will throw a <code>java.net.ConnectException</code></p>
+</li>
 </ol>
 </div>
 </div>
@@ -1383,15 +1481,22 @@ Just add <code>@Listeners(SniffyTestNgListener.class)</code> to your TestNG test
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">io.sniffy.test.testng.usage</span>;
 
+<span class="keyword">import</span> <span class="include">io.sniffy.socket.DisableSockets</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.sql.SqlExpectation</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.Count</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.testng.SniffyTestNgListener</span>;
 <span class="keyword">import</span> <span class="include">org.testng.annotations.Listeners</span>;
 <span class="keyword">import</span> <span class="include">org.testng.annotations.Test</span>;
 
+<span class="keyword">import</span> <span class="include">java.io.IOException</span>;
+<span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
+<span class="keyword">import</span> <span class="include">java.net.Socket</span>;
 <span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
 <span class="keyword">import</span> <span class="include">java.sql.DriverManager</span>;
 <span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
+
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
 
 <span class="annotation">@Listeners</span>(SniffyTestNgListener.class) <b class="conum">(1)</b>
 <span class="directive">public</span> <span class="type">class</span> <span class="class">UsageTestNg</span> {
@@ -1401,6 +1506,17 @@ Just add <code>@Listeners(SniffyTestNgListener.class)</code> to your TestNG test
     <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
         <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
         connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(4)</b>
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="annotation">@DisableSockets</span> <b class="conum">(5)</b>
+    <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        <span class="keyword">try</span> {
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>); <b class="conum">(6)</b>
+            fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
+        } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
+            assertNotNull(e);
+        }
     }
 
 }</code></pre>
@@ -1419,6 +1535,12 @@ Just add <code>@Listeners(SniffyTestNgListener.class)</code> to your TestNG test
 </li>
 <li>
 <p>- Do not make any changes in your code - just add the <code>@Listeners(SniffyTestNgListener.class)</code> and put annotations on your test method.</p>
+</li>
+<li>
+<p>- Add <code>@DisableSockets</code> annotation on your test method or test class and any attempt to open a network connection will fail</p>
+</li>
+<li>
+<p>- All socket operations executed within test method annotated with <code>@DisableSockets</code> will throw a <code>java.net.ConnectException</code></p>
 </li>
 </ol>
 </div>
@@ -1698,7 +1820,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-19 06:45:57 MSK
+Last updated 2017-03-25 12:07:02 MSK
 </div>
 </div>
 </body>

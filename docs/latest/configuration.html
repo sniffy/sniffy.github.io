@@ -559,7 +559,7 @@ sniffy configuration is parsed only once and any changes made to system properti
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.monitorSocket</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_MONITOR_SOCKET</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Monitor socket connections</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false (enabled implicitly by Sniffy javaagent or SniffyFiler)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.topSqlCapacity</p></td>
@@ -608,10 +608,13 @@ Unlike the query parameter the HTTP header will only affect a single request.</p
 <p>A similar header <code>Sniffy-Inject-Html-Enabled</code> can be used for hiding or showing the Sniffy Widget in the browser.
 Unlike <code>Sniffy-Enabled</code> It doesn&#8217;t come with a query parameter alternative.</p>
 </div>
+<div class="paragraph">
+<p>Convenient <a href="https://chrome.google.com/webstore/detail/sniffy-chrome-extension/hmiejljajpgikfbajggcolnblbhfedjp?hl=en">Sniffy Chrome Extension</a> can add these headers by simply clicking on an icon in your Google Chrome browser.</p>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-19 06:45:56 MSK
+Last updated 2017-03-26 22:09:59 MSK
 </div>
 </div>
 </body>

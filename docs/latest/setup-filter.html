@@ -549,6 +549,10 @@ table.CodeRay td.code>pre{padding:0}
         <span class="tag">&lt;param-name&gt;</span>inject-html-exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(4)</b>
         <span class="tag">&lt;param-value&gt;</span>^/peds.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
     <span class="tag">&lt;/init-param&gt;</span>
+    <span class="tag">&lt;init-param&gt;</span>
+        <span class="tag">&lt;param-name&gt;</span>monitor-socket<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(5)</b>
+        <span class="tag">&lt;param-value&gt;</span>false<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
+    <span class="tag">&lt;/init-param&gt;</span>
 <span class="tag">&lt;/filter&gt;</span>
 <span class="tag">&lt;filter-mapping&gt;</span>
     <span class="tag">&lt;filter-name&gt;</span>sniffer<span class="tag">&lt;/filter-name&gt;</span>
@@ -569,6 +573,9 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li>
 <p>Allows excluding of Sniffy toolbar injection to some of the request URL&#8217;s</p>
+</li>
+<li>
+<p>Allows disabling socket monitoring functionality; will also disable fault tolerance testing features</p>
 </li>
 </ol>
 </div>
@@ -662,7 +669,7 @@ It will act as described in table below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-19 06:45:59 MSK
+Last updated 2017-03-26 22:09:59 MSK
 </div>
 </div>
 </body>

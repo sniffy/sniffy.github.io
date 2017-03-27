@@ -529,15 +529,22 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">io.sniffy.test.junit.usage</span>;
 
+<span class="keyword">import</span> <span class="include">io.sniffy.socket.DisableSockets</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.sql.SqlExpectation</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.Count</span>;
 <span class="keyword">import</span> <span class="include">io.sniffy.test.junit.SniffyRule</span>;
 <span class="keyword">import</span> <span class="include">org.junit.Rule</span>;
 <span class="keyword">import</span> <span class="include">org.junit.Test</span>;
 
+<span class="keyword">import</span> <span class="include">java.io.IOException</span>;
+<span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
+<span class="keyword">import</span> <span class="include">java.net.Socket</span>;
 <span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
 <span class="keyword">import</span> <span class="include">java.sql.DriverManager</span>;
 <span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
+
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
 
 <span class="directive">public</span> <span class="type">class</span> <span class="class">JUnitUsageTest</span> {
 
@@ -549,6 +556,17 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
     <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
         <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
         connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(4)</b>
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="annotation">@DisableSockets</span> <b class="conum">(5)</b>
+    <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        <span class="keyword">try</span> {
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>); <b class="conum">(6)</b>
+            fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
+        } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
+            assertNotNull(e);
+        }
     }
 
 }</code></pre>
@@ -568,6 +586,12 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
 <li>
 <p>- Do not make any changes in your code - just add the <code>@Rule SniffyRule</code> and put annotations on your test method.</p>
 </li>
+<li>
+<p>- Add <code>@DisableSockets</code> annotation on your test method or test class and any attempt to open a network connection will fail</p>
+</li>
+<li>
+<p>- All socket operations executed within test method annotated with <code>@DisableSockets</code> will throw a <code>java.net.ConnectException</code></p>
+</li>
 </ol>
 </div>
 </div>
@@ -575,7 +599,7 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-19 06:45:59 MSK
+Last updated 2017-03-25 12:07:03 MSK
 </div>
 </div>
 </body>
