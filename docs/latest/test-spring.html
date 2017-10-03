@@ -543,9 +543,9 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
 <span class="keyword">import</span> <span class="include">java.net.Socket</span>;
 <span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
-<span class="keyword">import</span> <span class="include">java.sql.DriverManager</span>;
 <span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
 
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">java.sql.DriverManager.getConnection</span>;
 <span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
 <span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
 
@@ -555,17 +555,18 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <span class="directive">public</span> <span class="type">class</span> <span class="class">SpringUsageTest</span> {
 
     <span class="annotation">@Test</span>
-    <span class="annotation">@SqlExpectation</span>(count = <span class="annotation">@Count</span>(<span class="integer">1</span>)) <b class="conum">(2)</b>
+    <span class="annotation">@SqlExpectation</span>(count = <span class="annotation">@Count</span>(max = <span class="integer">1</span>))
     <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
-        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
-        connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(4)</b>
+        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = getConnection(
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>);
+        connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>);
     }
 
     <span class="annotation">@Test</span>
     <span class="annotation">@DisableSockets</span> <b class="conum">(5)</b>
     <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
         <span class="keyword">try</span> {
-            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>); <b class="conum">(6)</b>
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">443</span>); <b class="conum">(6)</b>
             fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
         } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
             assertNotNull(e);
@@ -602,7 +603,7 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-25 12:07:03 MSK
+Last updated 2017-10-02 14:37:34 MSK
 </div>
 </div>
 </body>

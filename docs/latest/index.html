@@ -574,6 +574,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_integration_with_spock_framework">Integration with Spock Framework</a></li>
 </ul>
 </li>
+<li><a href="#_emulating_network_issues">Emulating network issues</a></li>
 <li><a href="#_migration_from_previous_versions">Migration from previous versions</a>
 <ul class="sectlevel1">
 <li><a href="#_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</a>
@@ -644,7 +645,8 @@ It also brings profiling to your unit (or rather component) tests and allows you
 </div>
 </div>
 <div class="paragraph">
-<p>Sniffy will throw a <code>java.net.ConnectException</code> when your application tries to connect to address disallowed by Sniffy.</p>
+<p>Sniffy will throw a <code>java.net.ConnectException</code> when your application tries to connect to address disallowed by Sniffy.
+It&#8217;s also possible to specify a fixed delay for all sent and received TCP packets.</p>
 </div>
 </div>
 <div class="sect2">
@@ -674,7 +676,7 @@ It also brings profiling to your unit (or rather component) tests and allows you
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
-Just grab the <code>sniffy-3.1.3.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+Just grab the <code>sniffy-3.1.5.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -683,7 +685,7 @@ Just grab the <code>sniffy-3.1.3.jar</code> from our <a href="https://github.com
 <div class="title">Warning</div>
 </td>
 <td class="content">
-If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.3.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.5.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
 </td>
 </tr>
 </table>
@@ -694,7 +696,7 @@ If you&#8217;re using an application server like Tomcat and you&#8217;re definin
 <h2 id="_non_servlet_applications">Non-Servlet applications</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Standalone sniffy uber-jar also works with non-Servlet applications (Currently only fault tolerance testing is supported in this mode).
+<p>Standalone sniffy uber-jar also works with non-Servlet applications (Currently only fault tolerance testing and TCP delay are supported in this mode).
 Just add following parameter to your java application command line:
 <code>-javaagent:sniffy-&lt;VERSION&gt;.jar=5559</code></p>
 </div>
@@ -721,7 +723,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.5<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -729,7 +731,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.3</span><span class="delimiter">'</span></span>
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.5</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -749,7 +751,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.5<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -758,7 +760,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.3</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.5</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -771,7 +773,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.5<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -780,7 +782,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.3</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.5</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -793,7 +795,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.3<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.5<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -802,7 +804,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.3</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.5</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -1414,9 +1416,9 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
 <span class="keyword">import</span> <span class="include">java.net.Socket</span>;
 <span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
-<span class="keyword">import</span> <span class="include">java.sql.DriverManager</span>;
 <span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
 
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">java.sql.DriverManager.getConnection</span>;
 <span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
 <span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
 
@@ -1426,17 +1428,18 @@ Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to
 <span class="directive">public</span> <span class="type">class</span> <span class="class">SpringUsageTest</span> {
 
     <span class="annotation">@Test</span>
-    <span class="annotation">@SqlExpectation</span>(count = <span class="annotation">@Count</span>(<span class="integer">1</span>)) <b class="conum">(2)</b>
+    <span class="annotation">@SqlExpectation</span>(count = <span class="annotation">@Count</span>(max = <span class="integer">1</span>))
     <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
-        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = <span class="predefined-type">DriverManager</span>.getConnection(<span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>); <b class="conum">(3)</b>
-        connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>); <b class="conum">(4)</b>
+        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = getConnection(
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>);
+        connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>);
     }
 
     <span class="annotation">@Test</span>
     <span class="annotation">@DisableSockets</span> <b class="conum">(5)</b>
     <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
         <span class="keyword">try</span> {
-            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">22</span>); <b class="conum">(6)</b>
+            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">443</span>); <b class="conum">(6)</b>
             fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
         } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
             assertNotNull(e);
@@ -1612,6 +1615,35 @@ Just add <code>@Listeners(SniffyTestNgListener.class)</code> to your TestNG test
 <p>Do not forget to call <code>reset()</code> method on the spy object if you have multiple when-then blocks in a single test method</p>
 </div>
 </div>
+</div>
+<h1 id="_emulating_network_issues" class="sect0">Emulating network issues</h1>
+<div class="paragraph">
+<p>Sniffy uses heuristics to add delay for TCP connections.</p>
+</div>
+<div class="paragraph">
+<p>Say we have specified a delay of <em>D</em> milliseconds and have the <em>R</em> receive buffer and <em>S</em> send buffer</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Establishing connection adds <em>D</em> milliseconds delay</p>
+</li>
+<li>
+<p>Sending <em>N</em> bytes where <em>(n - 1) * S &lt; N &lt; n * S</em> adds <em>n * D</em> milliseconds delay</p>
+</li>
+<li>
+<p>Receiving <em>N</em> bytes where <em>(n - 1) * R &lt; N &lt; n * R</em> adds <em>n * D</em> milliseconds delay</p>
+</li>
+<li>
+<p>Sending anything in the same thread as reading will trigger a delay on subsequent receive and vice versa</p>
+</li>
+<li>
+<p>Calling sendUrgentData(int) method alls <em>D</em> milliseconds delay</p>
+</li>
+<li>
+<p>Closing connection adds <em>D</em> milliseconds delay</p>
+</li>
+</ul>
 </div>
 <h1 id="_migration_from_previous_versions" class="sect0">Migration from previous versions</h1>
 <div class="sect1">
@@ -1820,7 +1852,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-25 12:07:02 MSK
+Last updated 2017-10-02 14:37:34 MSK
 </div>
 </div>
 </body>
