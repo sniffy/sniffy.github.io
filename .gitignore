@@ -1,5 +1,6 @@
 # Jekyll ignores
 .jekyll-metadata
+.jekyll-cache
 .sass-cache/
 _site/
 _drafts/
@@ -59,3 +60,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Idea
+.idea
