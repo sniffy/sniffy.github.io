@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>Filter</title>
+<title>Shared connection</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -526,9 +526,11 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_filter">Filter</a>
+<li><a href="#_shared_connection">Shared connection</a>
 <ul class="sectlevel2">
-<li><a href="#_enable_sniffy_filter_in_web_xml">Enable Sniffy filter in web.xml</a></li>
+<li><a href="#_master_and_slave_connections">Master and slave connections</a></li>
+<li><a href="#_example">Example</a></li>
+<li><a href="#_caveats">Caveats</a></li>
 </ul>
 </li>
 </ul>
@@ -536,145 +538,90 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_filter">Filter</h2>
+<h2 id="_shared_connection">Shared connection</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_enable_sniffy_filter_in_web_xml">Enable Sniffy filter in web.xml</h3>
+<div class="paragraph">
+<p>In some test scenarios you might want to execute all SQL commands in a single connection even though your code under test obtains multiple connections.
+The major use case is starting a transaction in the beginning of your test and rolling it back at the end.
+Using shared connection will force you application to use this particular transaction and connection even if you work will multiple threads/transactions/connections.</p>
+</div>
+<div class="paragraph">
+<p><code>SharedConnectionDataSource</code> is a wrapper around any other <code>DataSource</code> with two additional methods:</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;filter&gt;</span>
-    <span class="tag">&lt;filter-name&gt;</span>sniffer<span class="tag">&lt;/filter-name&gt;</span>
-    <span class="tag">&lt;filter-class&gt;</span>io.sniffy.servlet.SniffyFilter<span class="tag">&lt;/filter-class&gt;</span>
-    <span class="tag">&lt;async-supported&gt;</span>true<span class="tag">&lt;/async-supported&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>enabled<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(1)</b>
-        <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(2)</b>
-        <span class="tag">&lt;param-value&gt;</span>^/vets.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>inject-html<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(3)</b>
-        <span class="tag">&lt;param-value&gt;</span>true<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>inject-html-exclude-pattern<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(4)</b>
-        <span class="tag">&lt;param-value&gt;</span>^/peds.html$<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- optional --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-    <span class="tag">&lt;init-param&gt;</span>
-        <span class="tag">&lt;param-name&gt;</span>monitor-socket<span class="tag">&lt;/param-name&gt;</span> <b class="conum">(5)</b>
-        <span class="tag">&lt;param-value&gt;</span>false<span class="tag">&lt;/param-value&gt;</span> <span class="comment">&lt;!-- default: true --&gt;</span>
-    <span class="tag">&lt;/init-param&gt;</span>
-<span class="tag">&lt;/filter&gt;</span>
-<span class="tag">&lt;filter-mapping&gt;</span>
-    <span class="tag">&lt;filter-name&gt;</span>sniffer<span class="tag">&lt;/filter-name&gt;</span>
-    <span class="tag">&lt;url-pattern&gt;</span>/*<span class="tag">&lt;/url-pattern&gt;</span>
-<span class="tag">&lt;/filter-mapping&gt;</span></code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> SharedConnectionDataSource(<span class="predefined-type">DataSource</span> targetDataSource);
+
+<span class="directive">public</span> <span class="directive">synchronized</span> <span class="type">void</span> setCurrentThreadAsMaster();
+
+<span class="directive">public</span> <span class="directive">synchronized</span> <span class="type">void</span> resetMasterConnection() <span class="directive">throws</span> <span class="exception">InterruptedException</span>;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Call <code>setCurrentThreadAsMaster()</code> method when you want to switch your DataSource to a shared connection mode.
+After you call this method, all new connections obtained from this DataSourcce will actually reuse the same underlying connection</p>
+</div>
+<div class="paragraph">
+<p>Call <code>resetMasterConnection()</code> when your test is finished and you want to return the data source to the ordinary state.</p>
+</div>
+<div class="sect2">
+<h3 id="_master_and_slave_connections">Master and slave connections</h3>
+<div class="paragraph">
+<p>In <code>SharedConnectionDataSource</code> there&#8217;s one <code>master</code> connection and multiple <code>slave</code> connections.
+All operations affecting the connection (such as close, commit, rollback, e.t.c.) are suppressed in slave connections, i.e. they do nothing.</p>
+</div>
+<div class="paragraph">
+<p>This how master connection is determined:
+- If there is an active connection obtained in the same thread as one calling <code>setCurrentThreadAsMaster()</code>, this connection is marked as master
+- Otherwise the first connection obtained  in the same thread as one calling <code>setCurrentThreadAsMaster()</code> will be marked as master</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example">Example</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">        SharedConnectionDataSource sharedConnectionDataSource = <span class="keyword">new</span> SharedConnectionDataSource(targetDataSource); // <b class="conum">(1)</b>
+
+        sharedConnectionDataSource.setCurrentThreadAsMaster(); // <b class="conum">(2)</b>
+
+        <span class="keyword">try</span> (<span class="predefined-type">Connection</span> masterConnection = sharedConnectionDataSource.getConnection(); // <b class="conum">(3)</b>
+             <span class="predefined-type">Connection</span> slaveConnection = newSingleThreadExecutor().submit(
+                     (<span class="predefined-type">Callable</span>&lt;<span class="predefined-type">Connection</span>&gt;) sharedConnectionDataSource::getConnection).get() // <b class="conum">(4)</b>
+        ) {
+            assertEquals(masterConnection, slaveConnection); // <b class="conum">(5)</b>
+        } <span class="keyword">finally</span> {
+            sharedConnectionDataSource.resetMasterConnection(); // <b class="conum">(6)</b>
+        }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <ol>
 <li>
-<p>Allows disabling the Sniffy filter in <code>web.xml</code></p>
+<p>Create a <code>SharedConnectionDataSource</code> wrapper by passing an underlying DataSource to the constructor</p>
 </li>
 <li>
-<p>Allows excluding some of the request URL&#8217;s from Sniffer filter</p>
+<p>Mark current Thread as <code>master</code> - first connection obtained from this thread will be considered <code>master</code></p>
 </li>
 <li>
-<p>Enables injection of Sniffy toolbar to HTML. If disabled the html remains untouched. You still can get the number of executed queries from <code>Sniffy-Sql-Queries</code> HTTP header.</p>
+<p>Get the master connection from the pool</p>
 </li>
 <li>
-<p>Allows excluding of Sniffy toolbar injection to some of the request URL&#8217;s</p>
+<p>Get the slave connection from the pool. It is slave cause called from another thread and master connection is already determined</p>
 </li>
 <li>
-<p>Allows disabling socket monitoring functionality; will also disable fault tolerance testing features</p>
+<p>Assert that connections are actually the same</p>
+</li>
+<li>
+<p>Release the master connection. This call will for all slave connetions to finish (until <code>close()</code> method is called) and unmark current thread and connection as master</p>
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p>Apart from obvious <code>false</code> and <code>true</code> values, you can set <code>inject-html</code> and 'enabled' parameters to a <code>system</code> value.
-It will act as described in table below:</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 1. Sniffy Filter Configuration</caption>
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">-Dio.sniffy.filterEnabled or IO_SNIFFY_FILTER_ENABLED</th>
-<th class="tableblock halign-left valign-top">enabled filter init param</th>
-<th class="tableblock halign-left valign-top">Effective value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">absent</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
+<div class="sect2">
+<h3 id="_caveats">Caveats</h3>
 <div class="paragraph">
-<p>Similar rules are applied to <code>inject-html</code> filter parameter</p>
+<p>Although all API calls which might affect the shared connection in slave connections, it is still possible to interfere with other connections.
+For example any DDL calls (like CREATE TABLE) commit the transaction implicitly.</p>
 </div>
 </div>
 </div>
