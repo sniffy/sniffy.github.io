@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>Integration with Spring Framework</title>
+<title>Integration with Kotest</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -526,206 +526,133 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_integration_with_spring_framework">Integration with Spring Framework</a>
-<ul class="sectlevel2">
-<li><a href="#_sharedconnection">@SharedConnection</a></li>
-<li><a href="#_troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
+<li><a href="#_integration_with_kotest">Integration with Kotest</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_integration_with_spring_framework">Integration with Spring Framework</h2>
+<h2 id="_integration_with_kotest">Integration with Kotest</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Sniffy comes with a <a href="http://projects.spring.io/spring-framework/">Spring Framework</a> via <code>SniffySpringTestListener</code> spring <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#testcontext-tel-config">@TestExecutionListener</a>.
-Just add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> to your Spring test class and place appropriate expectations on your test methods like shown below.</p>
+<p>Sniffy comes with a <a href="https://kotest.io/">Kotest</a> <code>TestCaseExtension`s for quick integration with test framework.
+Just add `DisableSocketsExtension</code> to simulate network isolation in your tests or <code>SniffyExtension</code> to assert number of executed queries and/or opened connections</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">io.sniffy.test.spring.usage</span>;
+<pre class="CodeRay highlight"><code data-lang="kotlin">package io.sniffy.test.kotest.usage
 
-<span class="keyword">import</span> <span class="include">io.sniffy.socket.DisableSockets</span>;
-<span class="keyword">import</span> <span class="include">io.sniffy.sql.SqlExpectation</span>;
-<span class="keyword">import</span> <span class="include">io.sniffy.test.Count</span>;
-<span class="keyword">import</span> <span class="include">io.sniffy.test.spring.SniffySpringTestListener</span>;
-<span class="keyword">import</span> <span class="include">org.junit.Test</span>;
-<span class="keyword">import</span> <span class="include">org.junit.runner.RunWith</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.context.ContextConfiguration</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.context.TestExecutionListeners</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.context.junit4.SpringJUnit4ClassRunner</span>;
+import com.hazelcast.client.HazelcastClient
+import com.hazelcast.client.config.*
+import com.hazelcast.config.Config
+import com.hazelcast.config.NetworkConfig
+import com.hazelcast.core.Hazelcast
+import com.hazelcast.core.HazelcastInstance
+import io.kotest.assertions.fail
+import io.kotest.core.extensions.TestCaseExtension
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
+import io.kotest.core.test.TestResult
+import io.kotest.core.test.TestStatus
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.instanceOf
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.request.*
+import io.sniffy.SniffyAssertionError
 
-<span class="keyword">import</span> <span class="include">java.io.IOException</span>;
-<span class="keyword">import</span> <span class="include">java.net.ConnectException</span>;
-<span class="keyword">import</span> <span class="include">java.net.Socket</span>;
-<span class="keyword">import</span> <span class="include">java.sql.Connection</span>;
-<span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
+class ExpectSniffyAssertionExceptionExtension : TestCaseExtension {
 
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">java.sql.DriverManager.getConnection</span>;
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertNotNull</span>;
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.fail</span>;
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS</span>;
-
-<span class="annotation">@RunWith</span>(SpringJUnit4ClassRunner.class)
-<span class="annotation">@ContextConfiguration</span>(classes = SpringUsageTest.class)
-<span class="annotation">@TestExecutionListeners</span>(value = SniffySpringTestListener.class, mergeMode = MERGE_WITH_DEFAULTS) // <b class="conum">(1)</b>
-<span class="directive">public</span> <span class="type">class</span> <span class="class">SpringUsageTest</span> {
-
-    <span class="annotation">@Test</span>
-    <span class="annotation">@SqlExpectation</span>(count = <span class="annotation">@Count</span>(max = <span class="integer">1</span>))
-    <span class="directive">public</span> <span class="type">void</span> testJUnitIntegration() <span class="directive">throws</span> <span class="exception">SQLException</span> {
-        <span class="directive">final</span> <span class="predefined-type">Connection</span> connection = getConnection(
-                <span class="string"><span class="delimiter">&quot;</span><span class="content">sniffy:jdbc:h2:mem:</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>);
-        connection.createStatement().execute(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT 1 FROM DUAL</span><span class="delimiter">&quot;</span></span>);
-    }
-
-    <span class="annotation">@Test</span>
-    <span class="annotation">@DisableSockets</span> // <b class="conum">(5)</b>
-    <span class="directive">public</span> <span class="type">void</span> testDisableSockets() <span class="directive">throws</span> <span class="exception">IOException</span> {
-        <span class="keyword">try</span> {
-            <span class="keyword">new</span> <span class="predefined-type">Socket</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">google.com</span><span class="delimiter">&quot;</span></span>, <span class="integer">443</span>); // <b class="conum">(6)</b>
-            fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Sniffy should have thrown ConnectException</span><span class="delimiter">&quot;</span></span>);
-        } <span class="keyword">catch</span> (<span class="exception">ConnectException</span> e) {
-            assertNotNull(e);
+    override suspend fun intercept(testCase: TestCase, execute: suspend (TestCase) -&gt; TestResult): TestResult {
+        val testResult = execute(testCase)
+        try {
+            testResult.error shouldBe instanceOf(SniffyAssertionError::class)
+        } catch (e: Exception) {
+            return testResult.copy(status = TestStatus.Failure, error = e)
         }
+        return TestResult.success(testResult.duration)
+    }
+}
+
+class KotestUsageTests : StringSpec({
+
+    @Suppress(&quot;BlockingMethodInNonBlockingContext&quot;)
+    &quot;Ktor HTTP Client should be intercepted by Sniffy&quot;.config(extensions = listOf( // <b class="conum">(1)</b>
+            ExpectSniffyAssertionExceptionExtension(),
+            NoSocketsAllowedExtension() // <b class="conum">(2)</b>
+    )) {
+
+        val client = HttpClient(Apache)
+
+        client.get(&quot;https://en.wikipedia.org/wiki/Main_Page&quot;)
+
     }
 
-}</code></pre>
+    &quot;Hazelcast client should be intercepted by Sniffy&quot;.config(
+            extensions = listOf(DisableSocketsExtension())) {// <b class="conum">(3)</b>
+
+        val serverConfig: Config = Config(&quot;my-hazelcast&quot;).apply {
+            networkConfig = NetworkConfig().apply {
+                port = 6000
+                portCount = 1
+            }
+        }
+
+        val hzInstance: HazelcastInstance = Hazelcast.newHazelcastInstance(serverConfig)
+        hzInstance.getMap&lt;Any, Any&gt;(&quot;my-distributed-map&quot;).put(&quot;key&quot;, &quot;value&quot;)
+
+        try {
+            val config = ClientConfig().apply {
+                instanceName = &quot;my-hazelcast&quot;
+                networkConfig = ClientNetworkConfig().apply {
+                    addresses = listOf(&quot;localhost:6000&quot;)
+                }
+                connectionStrategyConfig = ClientConnectionStrategyConfig().apply {
+                    connectionRetryConfig = ConnectionRetryConfig().apply {
+                        initialBackoffMillis = 50
+                        maxBackoffMillis = 100
+                        clusterConnectTimeoutMillis = 200
+                    }
+                }
+            }
+            val failoverConfig = ClientFailoverConfig().apply {
+                tryCount = 1
+                clientConfigs = listOf(config)
+            }
+            val hazelcastClient = HazelcastClient.newHazelcastFailoverClient(failoverConfig)
+            hazelcastClient.getMap&lt;Any, Any&gt;(&quot;my-distributed-map&quot;).get(&quot;key&quot;) shouldBe &quot;value&quot;
+            fail(&quot;Should have been refused by Sniffy&quot;)
+        } catch (e: Exception) {
+            e shouldNotBe null
+        } finally {
+            hzInstance.shutdown()
+        }
+
+    }
+
+})</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <ol>
 <li>
-<p>- Integrate Sniffy to your test using <code>@TestExecutionListeners(SniffySpringTestListener.class)</code>.</p>
+<p>- Integrate Sniffy to your test by adding appropriate extensions</p>
 </li>
 <li>
-<p>- Now just add <code>@SqlExpectation</code> annotation to define number of queries allowed for given method.</p>
+<p>- <code>NoSocketsAllowedExtension</code> would fail your test if it accesses network</p>
 </li>
 <li>
-<p>- Just add <code>sniffy:</code> in front of your JDBC connection URL in order to enable sniffer.</p>
-</li>
-<li>
-<p>- Do not make any changes in your code - just add the <code>@TestExecutionListeners(SniffySpringTestListener.class)</code> and put annotations on your test method.</p>
-</li>
-<li>
-<p>- Add <code>@DisableSockets</code> annotation on your test method or test class and any attempt to open a network connection will fail</p>
-</li>
-<li>
-<p>- All socket operations executed within test method annotated with <code>@DisableSockets</code> will throw a <code>java.net.ConnectException</code></p>
+<p>- <code>DisableSocketsExtension</code> can be used for simulating network isolation for your code</p>
 </li>
 </ol>
-</div>
-<div class="sect2">
-<h3 id="_sharedconnection">@SharedConnection</h3>
-<div class="paragraph">
-<p>Sniffy provides convenient annotations for shared connection data source in Spring unit tests.
-Consider example below:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">io.sniffy.test.spring.usage</span>;
-
-<span class="keyword">import</span> <span class="include">io.sniffy.test.spring.DataSourceTestConfiguration</span>;
-<span class="keyword">import</span> <span class="include">io.sniffy.test.spring.EnableSharedConnection</span>;
-<span class="keyword">import</span> <span class="include">io.sniffy.test.spring.SharedConnection</span>;
-<span class="keyword">import</span> <span class="include">io.sniffy.test.spring.SniffySpringTestListener</span>;
-<span class="keyword">import</span> <span class="include">org.junit.Test</span>;
-<span class="keyword">import</span> <span class="include">org.junit.runner.RunWith</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.beans.factory.annotation.Autowired</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.jdbc.core.JdbcTemplate</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.annotation.Rollback</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.context.ContextConfiguration</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.context.TestExecutionListeners</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.test.context.junit4.SpringJUnit4ClassRunner</span>;
-<span class="keyword">import</span> <span class="include">org.springframework.transaction.annotation.Transactional</span>;
-<span class="keyword">import</span> <span class="include">ru.yandex.qatools.allure.annotations.Features</span>;
-
-<span class="keyword">import</span> <span class="include">java.sql.SQLException</span>;
-<span class="keyword">import</span> <span class="include">java.util.Arrays</span>;
-<span class="keyword">import</span> <span class="include">java.util.concurrent.ExecutionException</span>;
-
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">java.util.concurrent.Executors.newSingleThreadExecutor</span>;
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.junit.Assert.assertEquals</span>;
-<span class="keyword">import</span> <span class="include">static</span> <span class="include">org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS</span>;
-
-<span class="annotation">@RunWith</span>(SpringJUnit4ClassRunner.class)
-<span class="annotation">@ContextConfiguration</span>(classes = {DataSourceTestConfiguration.class, SpringSharedConnectionUsageTest.class})
-<span class="annotation">@TestExecutionListeners</span>(value = SniffySpringTestListener.class, mergeMode = MERGE_WITH_DEFAULTS) // <b class="conum">(1)</b>
-<span class="annotation">@EnableSharedConnection</span> // <b class="conum">(2)</b>
-<span class="annotation">@Transactional</span>
-<span class="annotation">@Rollback</span>
-<span class="directive">public</span> <span class="type">class</span> <span class="class">SpringSharedConnectionUsageTest</span> {
-
-    <span class="annotation">@Autowired</span>
-    <span class="directive">private</span> JdbcTemplate jdbcTemplate;
-
-    <span class="annotation">@Test</span>
-    <span class="annotation">@SharedConnection</span> // <b class="conum">(3)</b>
-    <span class="annotation">@Features</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">issue/344</span><span class="delimiter">&quot;</span></span>)
-    <span class="directive">public</span> <span class="type">void</span> testSharedConnectionTwoRows() <span class="directive">throws</span> <span class="exception">SQLException</span>, <span class="exception">ExecutionException</span>, <span class="exception">InterruptedException</span> {
-
-        jdbcTemplate.batchUpdate(
-                <span class="string"><span class="delimiter">&quot;</span><span class="content">INSERT INTO PUBLIC.PROJECT (ID, NAME) VALUES (SEQ_PROJECT.NEXTVAL, ?)</span><span class="delimiter">&quot;</span></span>,
-                <span class="predefined-type">Arrays</span>.asList(<span class="keyword">new</span> <span class="predefined-type">Object</span><span class="type">[]</span>{<span class="string"><span class="delimiter">&quot;</span><span class="content">foo</span><span class="delimiter">&quot;</span></span>}, <span class="keyword">new</span> <span class="predefined-type">Object</span><span class="type">[]</span>{<span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>})
-        ); // <b class="conum">(4)</b>
-
-        assertEquals(<span class="integer">2</span>, newSingleThreadExecutor().submit(
-                () -&gt; jdbcTemplate.queryForObject(<span class="string"><span class="delimiter">&quot;</span><span class="content">SELECT COUNT(*) FROM PUBLIC.PROJECT</span><span class="delimiter">&quot;</span></span>, <span class="predefined-type">Integer</span>.class) // <b class="conum">(5)</b>
-        ).get().intValue());
-
-    }
-
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>- Integrate Sniffy to your test using <code>@TestExecutionListeners(SniffySpringTestListener.class)</code>.</p>
-</li>
-<li>
-<p>- <code>@EnableSharedConnection</code> will automatically wrap all your data sources with <code>SharedConnectionDataSource</code></p>
-</li>
-<li>
-<p>- <code>@SharedConnection</code> annotation will make the current connection (started because of <code>@Transactional</code> annotation before each test) as master</p>
-</li>
-<li>
-<p>- Insert two rows into table using master connection</p>
-</li>
-<li>
-<p>- Another slave connection obtained in another thread will still see the results of these inserts although the isolation level is <code>READ_COMITTED</code> and master transaction has not been committed</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_troubleshooting">Troubleshooting</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Spring test context is no longer loaded when I add <code>@TestExecutionListeners(SniffySpringTestListener.class)</code></p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>The reason is that by default Spring does not merge the test execution listeners.
-Using this configuration you&#8217;re removing the predefined listeners which initialize the context.
-Change the <em>mergeMode</em> parameter to <em>MERGE_WITH_DEFAULTS</em> as shown below:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@TestExecutionListeners</span>(value = SniffySpringTestListener.class, mergeMode = MERGE_WITH_DEFAULTS)</code></pre>
-</div>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-09-05 11:45:57 +0300
+Last updated 2020-11-10 04:38:01 +0300
 </div>
 </div>
 </body>

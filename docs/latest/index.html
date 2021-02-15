@@ -533,6 +533,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_asserting_number_of_queries_in_unit_tests">Asserting number of queries in unit tests</a></li>
 <li><a href="#_testing_bad_connectivity">Testing bad connectivity</a></li>
 <li><a href="#_simulating_no_connectivity_in_unit_tests">Simulating no connectivity in unit tests</a></li>
+<li><a href="#_recording_network_traffic">Recording network traffic</a></li>
 </ul>
 </li>
 <li><a href="#_install">Install</a>
@@ -589,6 +590,7 @@ table.CodeRay td.code>pre{padding:0}
 </ul>
 </li>
 <li><a href="#_integration_with_junit">Integration with JUnit</a></li>
+<li><a href="#_integration_with_kotest">Integration with Kotest</a></li>
 <li><a href="#_integration_with_spring_framework">Integration with Spring Framework</a>
 <ul class="sectlevel2">
 <li><a href="#_sharedconnection">@SharedConnection</a></li>
@@ -600,6 +602,17 @@ table.CodeRay td.code>pre{padding:0}
 </ul>
 </li>
 <li><a href="#_emulating_network_issues">Emulating network issues</a></li>
+<li><a href="#_capturing_traffic">Capturing traffic</a>
+<ul class="sectlevel1">
+<li><a href="#_capture_traffic">Capture Traffic</a>
+<ul class="sectlevel2">
+<li><a href="#_example_2">Example</a></li>
+<li><a href="#_configuration_2">Configuration</a></li>
+<li><a href="#_caveats_2">Caveats</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#_migration_from_previous_versions">Migration from previous versions</a>
 <ul class="sectlevel1">
 <li><a href="#_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</a>
@@ -623,7 +636,8 @@ table.CodeRay td.code>pre{padding:0}
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy is a Java profiler which shows the results directly in your browser.
-It also brings profiling to your unit (or rather component) tests and allows you to disable certain outgoing connections for fault-tolerance testing.</p>
+It also brings profiling to your unit (or rather component) tests and allows you to disable certain outgoing connections for fault-tolerance testing.
+It can even record network traffic sent via Java plain old Socket API as well as via NIO API.</p>
 </div>
 <div class="sect2">
 <h3 id="_in_browser_profiler">In-browser profiler</h3>
@@ -693,6 +707,55 @@ It&#8217;s also possible to specify a fixed delay for all sent and received TCP 
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_recording_network_traffic">Recording network traffic</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> testCaptureTraffic() <span class="directive">throws</span> <span class="exception">Exception</span> {
+
+        <span class="keyword">try</span> (Spy&lt;?&gt; spy = Sniffy.spy(
+                SpyConfiguration.builder().captureNetworkTraffic(<span class="predefined-constant">true</span>).build()) // <b class="conum">(1)</b>
+        ) {
+
+            performSocketOperation(); // <b class="conum">(2)</b>
+
+            <span class="predefined-type">Map</span>&lt;SocketMetaData, <span class="predefined-type">List</span>&lt;NetworkPacket&gt;&gt; networkTraffic = spy.getNetworkTraffic( // <b class="conum">(3)</b>
+                    Threads.ANY, // <b class="conum">(4)</b>
+                    AddressMatchers.anyAddressMatcher(), // <b class="conum">(5)</b>
+                    GroupingOptions.builder().
+                            groupByThread(<span class="predefined-constant">false</span>). // <b class="conum">(6)</b>
+                            groupByStackTrace(<span class="predefined-constant">false</span>). // <b class="conum">(7)</b>
+                            groupByConnection(<span class="predefined-constant">false</span>). // <b class="conum">(8)</b>
+                            build()
+            );
+
+            assertEquals(<span class="integer">1</span>, networkTraffic.size());
+
+            <span class="keyword">for</span> (<span class="predefined-type">Map</span>.Entry&lt;SocketMetaData, <span class="predefined-type">List</span>&lt;NetworkPacket&gt;&gt; entry : networkTraffic.entrySet()) {
+
+                SocketMetaData socketMetaData = entry.getKey(); // <b class="conum">(9)</b>
+
+                Protocol protocol = socketMetaData.getProtocol(); <span class="comment">// say TCP</span>
+                <span class="predefined-type">String</span> hostName = socketMetaData.getAddress().getHostName(); <span class="comment">// say &quot;hostname.acme.com&quot;</span>
+                <span class="type">int</span> port = socketMetaData.getAddress().getPort(); <span class="comment">// say 443</span>
+
+                <span class="predefined-type">List</span>&lt;NetworkPacket&gt; networkPackets = entry.getValue(); // <b class="conum">(10)</b>
+
+                assertArrayEquals(REQUEST, networkPackets.get(<span class="integer">0</span>).getBytes());
+                assertTrue(networkPackets.get(<span class="integer">0</span>).isSent());
+
+                assertArrayEquals(RESPONSE, networkPackets.get(<span class="integer">1</span>).getBytes());
+                assertFalse(networkPackets.get(<span class="integer">1</span>).isSent());
+
+            }
+
+        }
+
+    }</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <h1 id="_install" class="sect0">Install</h1>
@@ -701,7 +764,7 @@ It&#8217;s also possible to specify a fixed delay for all sent and received TCP 
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
-Just grab the <code>sniffy-3.1.6.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+Just grab the <code>sniffy-3.1.10-SNAPSHOT.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -710,7 +773,7 @@ Just grab the <code>sniffy-3.1.6.jar</code> from our <a href="https://github.com
 <div class="title">Warning</div>
 </td>
 <td class="content">
-If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.6.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.10-SNAPSHOT.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
 </td>
 </tr>
 </table>
@@ -734,6 +797,9 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <img src="./images/agent-ui.png" alt="agent ui">
 </div>
 </div>
+<div class="paragraph">
+<p>Advanced syntax takes comma separated parameters: <code>-javaagent:sniffy-&lt;VERSION&gt;.jar=sniffyPort=5559,monitorNio=true</code></p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -748,7 +814,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.6<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -756,7 +822,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.6</span><span class="delimiter">'</span></span>
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -776,7 +842,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.6<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -785,7 +851,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.6</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -798,7 +864,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.6<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -807,7 +873,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.6</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -820,7 +886,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.6<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -829,7 +895,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.6</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -1172,15 +1238,17 @@ sniffy configuration is parsed only once and any changes made to system properti
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. Table Configuration properties</caption>
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">System Property</th>
 <th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Sniffy Agent parameter</th>
 <th class="tableblock halign-left valign-top">Description</th>
 <th class="tableblock halign-left valign-top">Default Value</th>
 </tr>
@@ -1189,44 +1257,86 @@ sniffy configuration is parsed only once and any changes made to system properti
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.monitorJdbc</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_MONITOR_JDBC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Monitor JDBC</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.monitorSocket</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_MONITOR_SOCKET</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Monitor socket connections</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false (enabled implicitly by Sniffy javaagent or SniffyFiler)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.monitorNio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_MONITOR_NIO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">monitorNio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monitor NIO socket connections</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false (enabled implicitly by Sniffy javaagent or SniffyFiler)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.topSqlCapacity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_TOP_SQL_CAPACITY</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of top SQL queries to store</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1024</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.packetMergeThreshold</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_PACKET_MERGE_THRESHOLD</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Threshold for combining similar network packets when capturing traffic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">500</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.filterEnabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_FILTER_ENABLED</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enable servlet filter</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.excludePattern</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_EXCLUDE_PATTERN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Regexp for excluding sniffy completely from certain servlet requests</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.injectHtml</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_INJECT_HTML</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Inject Sniffy HTML to result HTML</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.injectHtmlExcludePattern</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_INJECT_HTML_EXCLUDE_PATTERN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Regexp for excluding sniffy widget from certain servlet requests</p></td>
 <td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sniffyPort</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP port Sniffy Agent is listening on</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5555</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.socketCaptureEnabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_SOCKET_CAPTURE_ENABLED</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable collecting network stats (bytes sent/received, time spent) if monitorSocket or monitorNio are enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.socketFaultInjectionEnabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_SOCKET_FAULT_INJECTION_ENABLED</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable injecting network faults if monitorSocket or monitorNio are enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
 </table>
@@ -1500,6 +1610,124 @@ Just add <code>@Rule public final SniffyRule sniffyRule = new SniffyRule();</cod
 </li>
 <li>
 <p>- All socket operations executed within test method annotated with <code>@DisableSockets</code> will throw a <code>java.net.ConnectException</code></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integration_with_kotest">Integration with Kotest</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sniffy comes with a <a href="https://kotest.io/">Kotest</a> <code>TestCaseExtension`s for quick integration with test framework.
+Just add `DisableSocketsExtension</code> to simulate network isolation in your tests or <code>SniffyExtension</code> to assert number of executed queries and/or opened connections</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin">package io.sniffy.test.kotest.usage
+
+import com.hazelcast.client.HazelcastClient
+import com.hazelcast.client.config.*
+import com.hazelcast.config.Config
+import com.hazelcast.config.NetworkConfig
+import com.hazelcast.core.Hazelcast
+import com.hazelcast.core.HazelcastInstance
+import io.kotest.assertions.fail
+import io.kotest.core.extensions.TestCaseExtension
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
+import io.kotest.core.test.TestResult
+import io.kotest.core.test.TestStatus
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.instanceOf
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.request.*
+import io.sniffy.SniffyAssertionError
+
+class ExpectSniffyAssertionExceptionExtension : TestCaseExtension {
+
+    override suspend fun intercept(testCase: TestCase, execute: suspend (TestCase) -&gt; TestResult): TestResult {
+        val testResult = execute(testCase)
+        try {
+            testResult.error shouldBe instanceOf(SniffyAssertionError::class)
+        } catch (e: Exception) {
+            return testResult.copy(status = TestStatus.Failure, error = e)
+        }
+        return TestResult.success(testResult.duration)
+    }
+}
+
+class KotestUsageTests : StringSpec({
+
+    @Suppress(&quot;BlockingMethodInNonBlockingContext&quot;)
+    &quot;Ktor HTTP Client should be intercepted by Sniffy&quot;.config(extensions = listOf( // <b class="conum">(1)</b>
+            ExpectSniffyAssertionExceptionExtension(),
+            NoSocketsAllowedExtension() // <b class="conum">(2)</b>
+    )) {
+
+        val client = HttpClient(Apache)
+
+        client.get(&quot;https://en.wikipedia.org/wiki/Main_Page&quot;)
+
+    }
+
+    &quot;Hazelcast client should be intercepted by Sniffy&quot;.config(
+            extensions = listOf(DisableSocketsExtension())) {// <b class="conum">(3)</b>
+
+        val serverConfig: Config = Config(&quot;my-hazelcast&quot;).apply {
+            networkConfig = NetworkConfig().apply {
+                port = 6000
+                portCount = 1
+            }
+        }
+
+        val hzInstance: HazelcastInstance = Hazelcast.newHazelcastInstance(serverConfig)
+        hzInstance.getMap&lt;Any, Any&gt;(&quot;my-distributed-map&quot;).put(&quot;key&quot;, &quot;value&quot;)
+
+        try {
+            val config = ClientConfig().apply {
+                instanceName = &quot;my-hazelcast&quot;
+                networkConfig = ClientNetworkConfig().apply {
+                    addresses = listOf(&quot;localhost:6000&quot;)
+                }
+                connectionStrategyConfig = ClientConnectionStrategyConfig().apply {
+                    connectionRetryConfig = ConnectionRetryConfig().apply {
+                        initialBackoffMillis = 50
+                        maxBackoffMillis = 100
+                        clusterConnectTimeoutMillis = 200
+                    }
+                }
+            }
+            val failoverConfig = ClientFailoverConfig().apply {
+                tryCount = 1
+                clientConfigs = listOf(config)
+            }
+            val hazelcastClient = HazelcastClient.newHazelcastFailoverClient(failoverConfig)
+            hazelcastClient.getMap&lt;Any, Any&gt;(&quot;my-distributed-map&quot;).get(&quot;key&quot;) shouldBe &quot;value&quot;
+            fail(&quot;Should have been refused by Sniffy&quot;)
+        } catch (e: Exception) {
+            e shouldNotBe null
+        } finally {
+            hzInstance.shutdown()
+        }
+
+    }
+
+})</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>- Integrate Sniffy to your test by adding appropriate extensions</p>
+</li>
+<li>
+<p>- <code>NoSocketsAllowedExtension</code> would fail your test if it accesses network</p>
+</li>
+<li>
+<p>- <code>DisableSocketsExtension</code> can be used for simulating network isolation for your code</p>
 </li>
 </ol>
 </div>
@@ -1863,6 +2091,112 @@ Just add <code>@Listeners(SniffyTestNgListener.class)</code> to your TestNG test
 </li>
 </ul>
 </div>
+<h1 id="_capturing_traffic" class="sect0">Capturing traffic</h1>
+<div class="sect1">
+<h2 id="_capture_traffic">Capture Traffic</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sniffy allows you to record traffic sent or received via network and exposes it via Java API.</p>
+</div>
+<div class="sect2">
+<h3 id="_example_2">Example</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> testCaptureTraffic() <span class="directive">throws</span> <span class="exception">Exception</span> {
+
+        <span class="keyword">try</span> (Spy&lt;?&gt; spy = Sniffy.spy(
+                SpyConfiguration.builder().captureNetworkTraffic(<span class="predefined-constant">true</span>).build()) // <b class="conum">(1)</b>
+        ) {
+
+            performSocketOperation(); // <b class="conum">(2)</b>
+
+            <span class="predefined-type">Map</span>&lt;SocketMetaData, <span class="predefined-type">List</span>&lt;NetworkPacket&gt;&gt; networkTraffic = spy.getNetworkTraffic( // <b class="conum">(3)</b>
+                    Threads.ANY, // <b class="conum">(4)</b>
+                    AddressMatchers.anyAddressMatcher(), // <b class="conum">(5)</b>
+                    GroupingOptions.builder().
+                            groupByThread(<span class="predefined-constant">false</span>). // <b class="conum">(6)</b>
+                            groupByStackTrace(<span class="predefined-constant">false</span>). // <b class="conum">(7)</b>
+                            groupByConnection(<span class="predefined-constant">false</span>). // <b class="conum">(8)</b>
+                            build()
+            );
+
+            assertEquals(<span class="integer">1</span>, networkTraffic.size());
+
+            <span class="keyword">for</span> (<span class="predefined-type">Map</span>.Entry&lt;SocketMetaData, <span class="predefined-type">List</span>&lt;NetworkPacket&gt;&gt; entry : networkTraffic.entrySet()) {
+
+                SocketMetaData socketMetaData = entry.getKey(); // <b class="conum">(9)</b>
+
+                Protocol protocol = socketMetaData.getProtocol(); <span class="comment">// say TCP</span>
+                <span class="predefined-type">String</span> hostName = socketMetaData.getAddress().getHostName(); <span class="comment">// say &quot;hostname.acme.com&quot;</span>
+                <span class="type">int</span> port = socketMetaData.getAddress().getPort(); <span class="comment">// say 443</span>
+
+                <span class="predefined-type">List</span>&lt;NetworkPacket&gt; networkPackets = entry.getValue(); // <b class="conum">(10)</b>
+
+                assertArrayEquals(REQUEST, networkPackets.get(<span class="integer">0</span>).getBytes());
+                assertTrue(networkPackets.get(<span class="integer">0</span>).isSent());
+
+                assertArrayEquals(RESPONSE, networkPackets.get(<span class="integer">1</span>).getBytes());
+                assertFalse(networkPackets.get(<span class="integer">1</span>).isSent());
+
+            }
+
+        }
+
+    }</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Use <code>captureNetworkTraffic(true)</code> when creating a <code>Spy</code> instance to enable traffic capturing</p>
+</li>
+<li>
+<p>Invoke socket operation. Can be either in current or another thread. Plain socket API or NIO - doesn&#8217;t matter.</p>
+</li>
+<li>
+<p>Retrieve network packets filtered and grouped as defined in parameters</p>
+</li>
+<li>
+<p>Allows you to filter traffic by thread</p>
+</li>
+<li>
+<p>Allows you to filter traffic by target address and/or port</p>
+</li>
+<li>
+<p>Group traffic by thread</p>
+</li>
+<li>
+<p>Group traffic by stack trace</p>
+</li>
+<li>
+<p>Group traffic by connection id - surrogate identifier of network connection</p>
+</li>
+<li>
+<p>SocketMetaData describes the target host and port and other parameters as described above for <code>GroupingOptions</code></p>
+</li>
+<li>
+<p><code>NetworkPacket</code> contains data in bytes, timestamp, direction and optional stacktrace and thread information</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuration_2">Configuration</h3>
+<div class="paragraph">
+<p><code>packetMergeThreshold</code> allows you to specify threshold for combining similar network packets when capturing traffic.
+For example if your application calls <code>SocketInputStream.read()</code> 8 times in a row to read a 64-bit value, Sniffy will merge these calls into a single packet given that they were done within specified threshold and of course given that no write/sent operation was done between them.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_caveats_2">Caveats</h3>
+<div class="paragraph">
+<p>Some libraries use native code for network operations.
+Currently Sniffy doesn&#8217;t capture this kind of traffic.</p>
+</div>
+</div>
+</div>
+</div>
 <h1 id="_migration_from_previous_versions" class="sect0">Migration from previous versions</h1>
 <div class="sect1">
 <h2 id="_migration_from_3_0_x_to_3_1_x">Migration from 3.0.x to 3.1.x</h2>
@@ -2070,7 +2404,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-10-11 09:39:45 UTC
+Last updated 2021-02-15 02:21:13 +0300
 </div>
 </div>
 </body>
