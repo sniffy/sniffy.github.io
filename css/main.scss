@@ -956,6 +956,7 @@ $baseurl: '{{ site.baseurl }}/images';
 	input[type="reset"],
 	input[type="button"],
 	button,
+	ul.actions a.button,
 	.button {
 		@include vendor('appearance', 'none');
 		@include vendor('transition', ('background-color #{_duration(transitions)} ease-in-out', 'color #{_duration(transitions)} ease-in-out'));
@@ -1539,7 +1540,8 @@ $baseurl: '{{ site.baseurl }}/images';
 		@include vendor('transform', 'translateX(20em)');
 		@include vendor('transition', 'transform #{_duration(menu)} ease');
 		-webkit-overflow-scrolling: touch;
-		background: _palette(accent1, bg);
+		background: #011715;
+		/* background: _palette(accent1, bg); */
 		color: _palette(accent1, fg-bold);
 		height: 100%;
 		max-width: 80%;
@@ -2241,6 +2243,18 @@ $baseurl: '{{ site.baseurl }}/images';
   	text-align:center;
   	margin-bottom:16px;
   }
+
+.middle {
+    display: -webkit-flexbox;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    justify-content: center;
+}
 
 {% if site.custom_extensions == 'yes' %}
 {% include _my/custom.scss %}

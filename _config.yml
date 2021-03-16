@@ -12,11 +12,11 @@
 
 # Site settings
 title: SNIFFY
-description: Hipster Open-Source interactive profiler <br/> for your Java applications
+description: Java IO/SQL sniffer, profiler, testing and chaos engineering toolkit
 owner:
   name: Sniffy # or company name
   email: iosniffy@gmail.com
-  url: http://sniffy.io
+  url: https://sniffy.io
 first_published: 2014 # if migrating another site, the year of your first publish
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://sniffy.io" # the base hostname & protocol for your site

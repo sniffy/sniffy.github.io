@@ -1,0 +1,29 @@
+---
+title: Sniffy - chaos engineering
+permalink: /sniffy-chaos-engineering/
+options: nolanding
+excerpt: Simulate network issues in JVM apps
+background-image: pulse.jpg
+---
+<section>
+    <h4>Fault tolerance testing</h4>
+    <p>Discover all outgoing network connections from your server and disable them right from your browser</p>
+    <img src="/images/network-connections.png"/>
+    <p>Sniffy will throw a java.net.ConnectException when your application tries to connect to address disallowed by Sniffy. It’s also possible to specify a fixed delay for all sent and received TCP packets.</p>
+    <hr/>
+    <h4>Simulating no connectivity in unit tests</h4>
+    <pre>
+    @Rule public SniffyRule sniffyRule = new SniffyRule();
+
+    @Test
+    @DisableSockets
+    public void testDisableSockets() throws IOException {
+        try {
+            new Socket("google.com", 22);
+            fail("Sniffy should have thrown ConnectException");
+        } catch (ConnectException e) {
+            assertNotNull(e);
+        }
+    }
+    </pre>
+</section>
