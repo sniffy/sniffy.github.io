@@ -189,6 +189,10 @@ $baseurl: '{{ site.baseurl }}/images';
   		font-size: _font(hdr-size-xlarge);
   	}
   	*/
+  	.breadcrumb {
+  	    padding: 0 0 2em 0
+  	}
+
     p, dt, dd, p span, th, td, li, blockquote, #post-date {
       font-family: _font(prose-family);
       font-size: _font(prose-size-large);
@@ -1441,7 +1445,7 @@ $baseurl: '{{ site.baseurl }}/images';
 	}
 
 	.wrapper {
-		@include padding(3em, 0); //6
+		@include padding(1em, 0); //6
 
 		> .inner {
 			width: 60em;
