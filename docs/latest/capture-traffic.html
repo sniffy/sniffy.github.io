@@ -530,6 +530,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="#_example">Example</a></li>
 <li><a href="#_configuration">Configuration</a></li>
+<li><a href="#_ssltls_traffic_decryption">SSL/TLS Traffic Decryption</a></li>
 <li><a href="#_caveats">Caveats</a></li>
 </ul>
 </li>
@@ -634,9 +635,32 @@ For example if your application calls <code>SocketInputStream.read()</code> 8 ti
 </div>
 </div>
 <div class="sect2">
+<h3 id="_ssltls_traffic_decryption">SSL/TLS Traffic Decryption</h3>
+<div class="paragraph">
+<p>Sniffy can decrypt capture traffic but you need to enable this feature explicitly using -D`io.sniffy.decryptTls` system property or <code>IO_SNIFFY_DECRYPT_TLS</code> environment variable.
+It&#8217;s also possible to enable it programmatically using  <code>io.sniffy.configuration.SniffyConfiguration.INSTANCE.setDecryptTls()</code> method.</p>
+</div>
+<div class="paragraph">
+<p>Decrypted traffic is available along with original traffic using dedicated <code>getDecryptedNetworkTraffic</code> method in Spy class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="predefined-type">Map</span>&lt;SocketMetaData, <span class="predefined-type">List</span>&lt;NetworkPacket&gt;&gt; decryptedNetworkTraffic = spy.getDecryptedNetworkTraffic(
+        Threads.CURRENT,
+        AddressMatchers.exactAddressMatcher(<span class="string"><span class="delimiter">&quot;</span><span class="content">www.google.com:443</span><span class="delimiter">&quot;</span></span>),
+        GroupingOptions.builder().
+                groupByConnection(<span class="predefined-constant">false</span>).
+                groupByStackTrace(<span class="predefined-constant">false</span>).
+                groupByThread(<span class="predefined-constant">false</span>).
+                build()
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_caveats">Caveats</h3>
 <div class="paragraph">
-<p>Some libraries use native code for network operations.
+<p>Some libraries like Apache APR and Netty (only when native transport is enabled explicitly) use native code for network operations.
 Currently Sniffy doesn&#8217;t capture this kind of traffic.</p>
 </div>
 </div>
@@ -645,7 +669,7 @@ Currently Sniffy doesn&#8217;t capture this kind of traffic.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-15 02:21:13 +0300
+Last updated 2021-04-23 00:58:52 UTC
 </div>
 </div>
 </body>

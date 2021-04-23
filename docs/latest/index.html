@@ -608,6 +608,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="#_example_2">Example</a></li>
 <li><a href="#_configuration_2">Configuration</a></li>
+<li><a href="#_ssltls_traffic_decryption">SSL/TLS Traffic Decryption</a></li>
 <li><a href="#_caveats_2">Caveats</a></li>
 </ul>
 </li>
@@ -764,7 +765,7 @@ It&#8217;s also possible to specify a fixed delay for all sent and received TCP 
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
-Just grab the <code>sniffy-3.1.10-SNAPSHOT.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+Just grab the <code>sniffy-3.1.11.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -773,7 +774,7 @@ Just grab the <code>sniffy-3.1.10-SNAPSHOT.jar</code> from our <a href="https://
 <div class="title">Warning</div>
 </td>
 <td class="content">
-If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.10-SNAPSHOT.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.11.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
 </td>
 </tr>
 </table>
@@ -814,7 +815,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -822,7 +823,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.11</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -842,7 +843,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -851,7 +852,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.11</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -864,7 +865,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -873,7 +874,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.11</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -886,7 +887,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.10-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -895,7 +896,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.10-SNAPSHOT</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.11</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -1255,6 +1256,13 @@ sniffy configuration is parsed only once and any changes made to system properti
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.logLevel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_LOG_LEVEL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sniffy logging level; allowed values are: TRACE, DEBUG, INFO, ERROR, OFF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">info</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.monitorJdbc</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_MONITOR_JDBC</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
@@ -1330,6 +1338,13 @@ sniffy configuration is parsed only once and any changes made to system properti
 <td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enable collecting network stats (bytes sent/received, time spent) if monitorSocket or monitorNio are enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.decryptTls</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IO_SNIFFY_DECRYPT_TLS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable decrypting captured TLS traffic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-Dio.sniffy.socketFaultInjectionEnabled</p></td>
@@ -1678,7 +1693,7 @@ class KotestUsageTests : StringSpec({
 
         val serverConfig: Config = Config(&quot;my-hazelcast&quot;).apply {
             networkConfig = NetworkConfig().apply {
-                port = 6000
+                port = 6600
                 portCount = 1
             }
         }
@@ -1690,7 +1705,7 @@ class KotestUsageTests : StringSpec({
             val config = ClientConfig().apply {
                 instanceName = &quot;my-hazelcast&quot;
                 networkConfig = ClientNetworkConfig().apply {
-                    addresses = listOf(&quot;localhost:6000&quot;)
+                    addresses = listOf(&quot;localhost:6600&quot;)
                 }
                 connectionStrategyConfig = ClientConnectionStrategyConfig().apply {
                     connectionRetryConfig = ConnectionRetryConfig().apply {
@@ -2189,9 +2204,32 @@ For example if your application calls <code>SocketInputStream.read()</code> 8 ti
 </div>
 </div>
 <div class="sect2">
+<h3 id="_ssltls_traffic_decryption">SSL/TLS Traffic Decryption</h3>
+<div class="paragraph">
+<p>Sniffy can decrypt capture traffic but you need to enable this feature explicitly using -D`io.sniffy.decryptTls` system property or <code>IO_SNIFFY_DECRYPT_TLS</code> environment variable.
+It&#8217;s also possible to enable it programmatically using  <code>io.sniffy.configuration.SniffyConfiguration.INSTANCE.setDecryptTls()</code> method.</p>
+</div>
+<div class="paragraph">
+<p>Decrypted traffic is available along with original traffic using dedicated <code>getDecryptedNetworkTraffic</code> method in Spy class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="predefined-type">Map</span>&lt;SocketMetaData, <span class="predefined-type">List</span>&lt;NetworkPacket&gt;&gt; decryptedNetworkTraffic = spy.getDecryptedNetworkTraffic(
+        Threads.CURRENT,
+        AddressMatchers.exactAddressMatcher(<span class="string"><span class="delimiter">&quot;</span><span class="content">www.google.com:443</span><span class="delimiter">&quot;</span></span>),
+        GroupingOptions.builder().
+                groupByConnection(<span class="predefined-constant">false</span>).
+                groupByStackTrace(<span class="predefined-constant">false</span>).
+                groupByThread(<span class="predefined-constant">false</span>).
+                build()
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_caveats_2">Caveats</h3>
 <div class="paragraph">
-<p>Some libraries use native code for network operations.
+<p>Some libraries like Apache APR and Netty (only when native transport is enabled explicitly) use native code for network operations.
 Currently Sniffy doesn&#8217;t capture this kind of traffic.</p>
 </div>
 </div>
@@ -2404,7 +2442,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-15 02:21:13 +0300
+Last updated 2021-04-23 00:58:52 UTC
 </div>
 </div>
 </body>

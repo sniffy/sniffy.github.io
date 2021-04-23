@@ -594,7 +594,7 @@ class KotestUsageTests : StringSpec({
 
         val serverConfig: Config = Config(&quot;my-hazelcast&quot;).apply {
             networkConfig = NetworkConfig().apply {
-                port = 6000
+                port = 6600
                 portCount = 1
             }
         }
@@ -606,7 +606,7 @@ class KotestUsageTests : StringSpec({
             val config = ClientConfig().apply {
                 instanceName = &quot;my-hazelcast&quot;
                 networkConfig = ClientNetworkConfig().apply {
-                    addresses = listOf(&quot;localhost:6000&quot;)
+                    addresses = listOf(&quot;localhost:6600&quot;)
                 }
                 connectionStrategyConfig = ClientConnectionStrategyConfig().apply {
                     connectionRetryConfig = ConnectionRetryConfig().apply {
@@ -652,7 +652,7 @@ class KotestUsageTests : StringSpec({
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-11-10 04:38:01 +0300
+Last updated 2021-04-23 00:58:52 UTC
 </div>
 </div>
 </body>
