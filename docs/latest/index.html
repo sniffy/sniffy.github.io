@@ -765,7 +765,7 @@ It&#8217;s also possible to specify a fixed delay for all sent and received TCP 
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sniffy comes with an uber-jar which doesn&#8217;t require any additional dependencies to be installed.
-Just grab the <code>sniffy-3.1.11.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
+Just grab the <code>sniffy-3.1.12.jar</code> from our <a href="https://github.com/sniffy/sniffy/releases/latest">releases page</a> and add it to the classpath of your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -774,7 +774,7 @@ Just grab the <code>sniffy-3.1.11.jar</code> from our <a href="https://github.co
 <div class="title">Warning</div>
 </td>
 <td class="content">
-If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.11.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
+If you&#8217;re using an application server like Tomcat and you&#8217;re defining a datasource on application server level, <code>sniffy-3.1.12.jar</code> should be added to the common classloader classpath and should be <strong>absent</strong> in web application classpath.
 </td>
 </tr>
 </table>
@@ -815,7 +815,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-web<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.12<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -823,7 +823,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.11</span><span class="delimiter">'</span></span>
+    compile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-web:3.1.12</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -843,7 +843,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-junit<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.12<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -852,7 +852,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.11</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-junit:3.1.12</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -865,7 +865,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-spring-test<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.12<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -874,7 +874,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.11</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-spring-test:3.1.12</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -887,7 +887,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>io.sniffy<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>sniffy-testng<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>3.1.11<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>3.1.12<span class="tag">&lt;/version&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -896,7 +896,7 @@ Below is an example of connections discovered in IntelliJ Idea:</p>
 <div class="title">Gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">dependencies {
-    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.11</span><span class="delimiter">'</span></span>
+    testCompile <span class="string"><span class="delimiter">'</span><span class="content">io.sniffy:sniffy-testng:3.1.12</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -2232,6 +2232,15 @@ It&#8217;s also possible to enable it programmatically using  <code>io.sniffy.co
 <p>Some libraries like Apache APR and Netty (only when native transport is enabled explicitly) use native code for network operations.
 Currently Sniffy doesn&#8217;t capture this kind of traffic.</p>
 </div>
+<div class="paragraph">
+<p>Sniffy provides an alternative implementation of <code>SSLEngine</code>, <code>SSLSocketFactory</code> and other classes from JSSE framework.
+Since some of these constructs can be cached in application code, please make sure to initialize Sniffy as early as possible.
+If absolutely necessary you can initialize Sniffy as a javaagent, although it&#8217;s a bit cumbersome - see <a href="https://sniffy.io/docs/latest/#_standalone_setup">Standalone Setup</a> section for details.</p>
+</div>
+<div class="paragraph">
+<p>Sniffy support custom JSSE providers such as BouncyCastle. However if you&#8217;re installing <strong>AFTER</strong> you initialize Sniffy you <em>might</em> need to reinitialize Sniffy.
+It&#8217;s possible using <code>Sniffy.reinitialize()</code> method.e</p>
+</div>
 </div>
 </div>
 </div>
@@ -2442,7 +2451,7 @@ You should use <code>sniffy:</code> instead like shown below:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-23 00:58:52 UTC
+Last updated 2021-05-12 08:49:35 UTC
 </div>
 </div>
 </body>

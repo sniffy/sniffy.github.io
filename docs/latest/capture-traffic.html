@@ -663,13 +663,22 @@ It&#8217;s also possible to enable it programmatically using  <code>io.sniffy.co
 <p>Some libraries like Apache APR and Netty (only when native transport is enabled explicitly) use native code for network operations.
 Currently Sniffy doesn&#8217;t capture this kind of traffic.</p>
 </div>
+<div class="paragraph">
+<p>Sniffy provides an alternative implementation of <code>SSLEngine</code>, <code>SSLSocketFactory</code> and other classes from JSSE framework.
+Since some of these constructs can be cached in application code, please make sure to initialize Sniffy as early as possible.
+If absolutely necessary you can initialize Sniffy as a javaagent, although it&#8217;s a bit cumbersome - see <a href="https://sniffy.io/docs/latest/#_standalone_setup">Standalone Setup</a> section for details.</p>
+</div>
+<div class="paragraph">
+<p>Sniffy support custom JSSE providers such as BouncyCastle. However if you&#8217;re installing <strong>AFTER</strong> you initialize Sniffy you <em>might</em> need to reinitialize Sniffy.
+It&#8217;s possible using <code>Sniffy.reinitialize()</code> method.e</p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-23 00:58:52 UTC
+Last updated 2021-05-12 08:49:35 UTC
 </div>
 </div>
 </body>
